@@ -54,11 +54,11 @@ for i in range(0, len(inputfilenamesv02)):
         aeronetfilev02 = []
         for j in range(0,len(inputfilev02)):
             if inputfilev02['process'][j] == 'on':                
-                if not os.path.exists(os.sep.join([rootdir, inputfilev02['v01outputdir'][j]])):
-                    os.makedirs(os.sep.join([rootdir, inputfilev02['v01outputdir'][j]]))
+                if not os.path.exists(os.sep.join([rootdir, inputfilev02['v02outputdir'][j]])):
+                    os.makedirs(os.sep.join([rootdir, inputfilev02['v02outputdir'][j]]))
 
                 filenamesv02.append(adf.reading_aeronet_data(rootdir,inputfilev02['filetype'][j],inputfilev02['v01datadir'][j]))                    
-                aeronetfilev02.append(adf.mining_aeronet_data(rootdir,inputfilev02['filetype'][j],inputfilev02['level'][j],inputfilev02['average_time'][j],inputfilev02['v01datadir'][j],inputfilev02['v01outputdir'][j]))
+                aeronetfilev02.append(adf.mining_aeronet_data(rootdir,inputfilev02['filetype'][j],inputfilev02['level'][j],inputfilev02['average_time'][j],inputfilev02['v01datadir'][j],inputfilev02['v02outputdir'][j]))
                 
                 main_aeronet_df = pd.concat(aeronetfilev02,axis=1,join='inner')
                 main_aeronet_df = main_aeronet_df.rename(columns = {'440-870_Angstrom_Exponent': 'AE_440_870nm', '380-500_Angstrom_Exponent': 'AE_380_500nm', '440-675_Angstrom_Exponent': 'AE_440_675nm', '500-870_Angstrom_Exponent': 'AE_500_870nm', '340-440_Angstrom_Exponent': 'AE_340_440nm',\
@@ -74,7 +74,7 @@ for i in range(0, len(inputfilenamesv02)):
                 main_aeronet_df = main_aeronet_df.reset_index()
             
             if inputfilev02['filetype'][j] == 'directsun':
-                savefilename_v02 = os.sep.join([rootdir,inputfilev02['v01outputdir'][j],''.join([filenamesv02[j][0],'&inversion_merged_v02'])])
+                savefilename_v02 = os.sep.join([rootdir,inputfilev02['v02outputdir'][j],''.join([filenamesv02[j][0],'&inversion_merged_v02'])])
             main_aeronet_df.to_csv(savefilename_v02,float_format="%.6f",index=False)
 
 '''
@@ -85,8 +85,8 @@ The new products are merged with the previous version 02 data (v02) in to a sing
 '''
 df_aeronetdata = adf.optical_products(main_aeronet_df)
 savefilename_v03 = savefilename_v02.replace('02-merged','03-merged').replace('datav02','datav03').replace('directsun&inversion_merged_v02','directsun&inversion_merged_v03')
-if not os.path.exists(os.sep.join([rootdir, inputfilev02['v01outputdir'][0].replace('02-merged','03-merged').replace('datav02','datav03')])):
-    os.makedirs(os.sep.join([rootdir, inputfilev02['v01outputdir'][0].replace('02-merged','03-merged').replace('datav02','datav03')]))
+if not os.path.exists(os.sep.join([rootdir, inputfilev02['v02outputdir'][0].replace('02-merged','03-merged').replace('datav02','datav03')])):
+    os.makedirs(os.sep.join([rootdir, inputfilev02['v02outputdir'][0].replace('02-merged','03-merged').replace('datav02','datav03')]))
 df_aeronetdata.to_csv(savefilename_v03,float_format="%.6f",index=False)
 
 
