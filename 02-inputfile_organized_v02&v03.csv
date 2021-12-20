@@ -1,4 +1,4 @@
-"filetype","level","average_time","v01datadir","v01outputdir","process"
+"filetype","level","average_time","v01datadir","v02outputdir","process"
 "directsun",15,"30min","01-organized_Sao_Paulo_2017_2021_datav01","02-merged_Sao_Paulo_2017_2021_datav02","on"
 "ssa",15,"30min","01-organized_Sao_Paulo_2017_2021_datav01","02-merged_Sao_Paulo_2017_2021_datav02","on"
 "lid",15,"30min","01-organized_Sao_Paulo_2017_2021_datav01","02-merged_Sao_Paulo_2017_2021_datav02","on"

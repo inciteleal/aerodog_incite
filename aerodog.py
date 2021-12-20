@@ -16,7 +16,7 @@ import aerodog_graphics_function as agf
 '''
 =============================================
 Reading the input raw directsun and inversion data from AERONET to organize - removing NaN or incorrect values
-THes organized files is saved as version 01 raw data, i.e., v01)
+These organized files is saved as version 01 raw data, i.e., v01)
 =============================================
 '''
 
