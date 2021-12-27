@@ -30,9 +30,12 @@ In the AERODOG script one should use different files as input.
 4. **03-inputfile_graphics_v04** - Version 04 data are compounded by graphics from several AERONET products. This input file contains 8 columns:
    - **aod** - wavelength values from AERONET channels products
    - **processed_aod** - variable to select single AOD wavelength to be plotted (one AOD by graphic). Use "on" to turn it on the graphic plot process or "off" to turn it off.
+   - **processed_boxplot_aod - variable to select AOD wavelength to plot boxplot graphic. Use "on" to turn it on the graphic plot process or "off" to turn it off.
    - **processed_aod_allgraphics** - variable to select all AOD wavelength values to be plotted in one graphic. Use "on" to turn it on the graphic plot process or "off" to turn it off.
    - **AE** - wavelength values (pair) to plot Angstrom Exponent relation
    - **processed_AE** - variable to select Angstrom Exponent wavelengths to be plotted (one AE relation by graphic). Use "on" to turn it on the graphic plot process or "off" to turn it off.
    - **processed_AE_allgraphics** - variable to select all Angstrom Exponent wavelength values to be plotted in one graphic. Use "on" to turn it on the graphic plot process or "off" to turn it off.
+   - **LR** - wavelength values from AERONET channel used as input to Lidar ratio plots.
+   - **processed_boxplot_LR - variable to select Lidar ratio wavelength to plot boxplot graphic. Use "on" to turn it on the graphic plot process or "off" to turn it off.
    - **v04outputdir** - directory name to be saved all graphics plotted from AERONET data (also called version 04 data).
    - **graphic_file_type** - type of graphics to be saved (.png, .gif, .pdf, etc.)
