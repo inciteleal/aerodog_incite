@@ -188,3 +188,15 @@ def boxplotfunc(v3aeronetdata):
     aeronetmeanbp = aeronetdata.groupby(['Month']).mean()
      
     return aeronetdata, aeronetmeanbp
+
+def angmatrixfunc(df_aeronetdata):
+    
+    derivssa = df_aeronetdata['SSA_440nm'] - df_aeronetdata['SSA_870nm']
+    num = np.log(df_aeronetdata['SSA_440nm']) - np.log(df_aeronetdata['SSA_870nm']) 
+    den = np.log(1.0 - df_aeronetdata['SSA_440nm']) - np.log(1.0 - df_aeronetdata['SSA_870nm'])
+    ssa_data = (1.0 - (num/den))**(-1.0)
+    weigth_1 = ((ssa_data - 1.0)/ssa_data)
+    weigth_2 = (1.0/ssa_data)
+    sae_data = weigth_1 * df_aeronetdata['AAE_440-870nm'] + weigth_2 * df_aeronetdata['EAE_440-870nm']
+
+    return ssa_data, sae_data, derivssa

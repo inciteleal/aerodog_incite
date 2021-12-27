@@ -316,3 +316,45 @@ def boxplot_temporal_evolution(graphicflag, datalevel, aeronetdatabp, aeronetmea
 #    plt.savefig(auxnamepdf)
     plt.show()
     plt.close(fig)
+    
+def angsmatrix_plot(ssa_data, sae_data, derivssa, df_aeronetdata, filegraphpath_angmatrix,graphname_angmatrix):
+    mdpi=120
+    sns.set(style = 'darkgrid')
+    fig1,ax = plt.subplots(1, 1, sharey = 'row', figsize=(1200/mdpi, 800/mdpi),dpi=mdpi,facecolor='w', edgecolor='k')
+    fig1.suptitle('measurement_title', fontsize=18, fontweight='bold')
+    fig1.subplots_adjust(top = 0.91, right = 1.05)
+    plt.scatter(sae_data, df_aeronetdata['AAE_440-870nm'], c = derivssa, cmap = 'Spectral_r')
+    plt.colorbar(label = 'dSSA(440-870nm)')
+    # Traçando as demarcações verticais e horizontais.
+    x = np.linspace(1.0, 1.5, 20)
+    plt.hlines(1.0, -1.0, 3.5, color = 'black', linestyle = 'dashed', linewidth = 1.0)
+    plt.hlines(1.5, -1.0, 3.5, color = 'black', linestyle = 'dashed', linewidth = 1.0)
+    plt.hlines(2.0, -1.0, 0.0, color = 'black', linestyle = 'dashed', linewidth = 1.0)
+    plt.hlines(2.0, 1.5, 3.5, color = 'black', linestyle = 'dashed', linewidth = 1.0)
+    plt.vlines(0.0, 2.0, 3.5, color = 'black', linestyle = 'dashed', linewidth = 1.0)
+    plt.vlines(1.5, 1.5, 3.5, color = 'black', linestyle = 'dashed', linewidth = 1.0)
+    plt.vlines(1.0, -1.0, 1.0, color = 'black', linestyle = 'dashed', linewidth = 1.0)
+    plt.plot(x, x, color = 'black', linestyle = 'dashed', linewidth = 1.1)
+    # Textos das demarcações.
+    plt.text(-0.88, 2.7, 'Dust Dominated', fontsize = 11, fontweight='bold')
+    plt.text(2.25, 2.7, 'Strong BrC', fontsize = 11, fontweight='bold')
+    plt.text(-0.2, 1.7, 'Mixed Dust/BC/BrC', fontsize = 11, fontweight='bold')
+    plt.text(2.15, 1.7, 'Mixed BC/BrC', fontsize = 11, fontweight='bold')
+    plt.text(-0.5, 1.2, 'Large Particle/BC Mix', fontsize = 11, fontweight='bold')
+    plt.text(2.13, 1.2, 'BC Dominated', fontsize = 11, fontweight='bold')
+    plt.text(-0.65, 0.0, 'Large Particle/Low Abs. Mix', fontsize = 11, fontweight='bold')
+    plt.text(1.8, 0.0, 'Small Particle/Low Abs. Mix', fontsize = 11, fontweight='bold')
+    ax.set_xlabel(r'Scaterring Ångström Exponent 440-870 nm', fontsize=18, fontweight='bold');
+    ax.set_ylabel(r'Absorption Ångström Exponent 440-870 nm', fontsize=18, fontweight='bold');
+    ax.set_xlim(-1.0, round(max(sae_data))+1.5)
+    ax.set_ylim(-1.0, round(max(df_aeronetdata['AAE_440-870nm']))+1.5)
+    ax.tick_params(axis='both', which='major', labelsize=15, width=5, length=5, color='black', direction='in')
+    for label in ax.get_xticklabels():
+            label.set_fontweight(550)
+    for label in ax.get_yticklabels():
+            label.set_fontweight(550)
+    ##ax.legend(fontsize = 16, loc = 'best', markerscale = 1.5, handletextpad = 0.2)    
+    auxname = os.sep.join([filegraphpath_angmatrix, graphname_angmatrix])
+    plt.savefig(auxname)
+    plt.show()
+    plt.close(fig1)        

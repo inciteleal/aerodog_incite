@@ -91,10 +91,17 @@ df_aeronetdata.to_csv(savefilename_v03,float_format="%.6f",index=False)
 
 '''
 =============================================
-Using the version 3 organized data to plot boxplot graphics from AERONET products
+Using the version 3 data to organized data to boxplot graphics
 =============================================
 '''
 aeronetdatabp, aeronetmeanbp = adf.boxplotfunc(df_aeronetdata)
+
+'''
+=============================================
+Using the version 3 data to organize data to Angstrom matrix graphics
+=============================================
+'''
+ssa_data, sae_data, derivssa = adf.angmatrixfunc(df_aeronetdata)
 
 '''
 =============================================
@@ -145,3 +152,15 @@ for i in range(0, len(inputfilenamesv04)):
                 if not os.path.exists(filegraphpathlr):
                     os.makedirs(filegraphpathlr)
                 agf.boxplot_temporal_evolution(inputfilev04.columns[7], inputfile['level'][0], aeronetdatabp, aeronetmeanbp, inputfilev04['LR'][m], filegraphpathlr, graphnamelr)
+
+'''
+=============================================
+Plotting Angstrom Matrix graphics
+=============================================
+'''
+
+filegraphpath_angmatrix = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],'processed_angstrom_matrix','processed_angstrom_matrix_440-870nm'])
+graphname_angmatrix = ''.join([rawfilenames[0][0].replace('.directsun','_Angs_Matrix_'),'440-870nm.',inputfilev04['graphic_file_type'][0]])
+if not os.path.exists(filegraphpath_angmatrix):
+    os.makedirs(filegraphpath_angmatrix)
+agf.angsmatrix_plot(ssa_data, sae_data, derivssa, df_aeronetdata, filegraphpath_angmatrix,graphname_angmatrix)
