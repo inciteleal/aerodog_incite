@@ -1,1 +1,13 @@
-
+#folder with organized AERONET data products in version v01
+01-organized_Sao_Paulo_2017_2021_datav01
+#folder with merged AERONET data products in version v02
+02-merged_Sao_Paulo_2017_2021_datav02
+#folder with merged AERONET data products in version v03
+03-merged_Sao_Paulo_2017_2021_datav03
+#folder with graphics from AERONET data products - version v04
+04-graphics_Sao_Paulo_2017_2021_datav04
+#python cache folder
+__pycache__
+#auxiliary .py files 
+06-aeronet_graphics_angstrom_matrix.py
+07-boxplot_LR.py

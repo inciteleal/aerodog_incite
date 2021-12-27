@@ -89,6 +89,12 @@ if not os.path.exists(os.sep.join([rootdir, inputfilev02['v02outputdir'][0].repl
     os.makedirs(os.sep.join([rootdir, inputfilev02['v02outputdir'][0].replace('02-merged','03-merged').replace('datav02','datav03')]))
 df_aeronetdata.to_csv(savefilename_v03,float_format="%.6f",index=False)
 
+'''
+=============================================
+Using the version 3 organized data to plot boxplot graphics from AERONET products
+=============================================
+'''
+aeronetdatabp, aeronetmeanbp = adf.boxplotfunc(df_aeronetdata)
 
 '''
 =============================================
@@ -106,31 +112,36 @@ for i in range(0, len(inputfilenamesv04)):
         
         for j in range(0,len(inputfilev04['processed_aod'])):
             if inputfilev04['processed_aod'][j] == 'on':
-                print('The AOD graphic at '+ str(inputfilev04['aod'][j]) + ' nm will be plotted' )
-                filegraphpath = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[1],''.join([inputfilev04.columns[1],'_',str(inputfilev04['aod'][j]),'nm'])])
-                graphname = ''.join([rawfilenames[0][0].replace('.directsun','_AOD_'),str(inputfilev04['aod'][j]),'nm.',inputfilev04['graphic_file_type'][0]])
+                print('The AOD graphic at '+ str(inputfilev04['AOD'][j]) + ' nm will be plotted' )
+                filegraphpath = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[1],''.join([inputfilev04.columns[1],'_',str(inputfilev04['AOD'][j]),'nm'])])
+                graphname = ''.join([rawfilenames[0][0].replace('.directsun','_AOD_'),str(inputfilev04['AOD'][j]),'nm.',inputfilev04['graphic_file_type'][0]])
                 if not os.path.exists(filegraphpath):
                     os.makedirs(filegraphpath)
-                agf.aod_temporal_evolution(inputfile['level'][0], inputfilev02['average_time'][0], df_aeronetdata,inputfilev04['aod'][j],filegraphpath,graphname)
-                
-       
+                agf.aod_temporal_evolution(inputfilev04.columns[0], inputfile['level'][0], inputfilev02['average_time'][0], df_aeronetdata,inputfilev04['AOD'][j],filegraphpath,graphname)
+                       
         for k in range(0,len(inputfilev04['processed_aod_allgraphics'].dropna())):
             if inputfilev04['processed_aod_allgraphics'][k] == 'on':
                 print('The AOD graphics of all wavelengths will be plotted')
-                filegraphpathall = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[2].replace('graphics','wavelengths')])
+                filegraphpathall = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[3].replace('graphics','wavelengths')])
                 graphnameall = ''.join([rawfilenames[0][0].replace('.directsun','_AOD_'),'allwavelengths.',inputfilev04['graphic_file_type'][0]])
                 if not os.path.exists(filegraphpathall):
                     os.makedirs(filegraphpathall)
-                agf.allaod_temporal_evolution(inputfile['level'][0], inputfilev02['average_time'][0], df_aeronetdata, inputfilev04['aod'], inputfilev04['processed_aod'],filegraphpathall,graphnameall)
+                agf.allaod_temporal_evolution(inputfilev04.columns[0],inputfile['level'][0], inputfilev02['average_time'][0], df_aeronetdata, inputfilev04['AOD'], inputfilev04['processed_aod'],filegraphpathall,graphnameall)
 
         for l in range(0,len(inputfilev04['processed_AE'].dropna())):
             if inputfilev04['processed_AE'][l] == 'on':
                 print('The Angstrom Exponent graphic relation at '+ str(list(ast.literal_eval(inputfilev04['AE'][l]))[0]) + '-' + str(list(ast.literal_eval(inputfilev04['AE'][l]))[1]) + ' nm will be plotted' )
-                filegraphpathae = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[4],''.join([inputfilev04.columns[4],str(list(ast.literal_eval(inputfilev04['AE'][l]))[0]),'-',str(list(ast.literal_eval(inputfilev04['AE'][l]))[1]),'nm'])])
+                filegraphpathae = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[5],''.join([inputfilev04.columns[5],str(list(ast.literal_eval(inputfilev04['AE'][l]))[0]),'-',str(list(ast.literal_eval(inputfilev04['AE'][l]))[1]),'nm'])])
                 graphnameae = ''.join([rawfilenames[0][0].replace('.directsun','_AE'),''.join([str(list(ast.literal_eval(inputfilev04['AE'][l]))[0]),'-',str(list(ast.literal_eval(inputfilev04['AE'][l]))[1])]),'nm.',inputfilev04['graphic_file_type'][0]])
                 if not os.path.exists(filegraphpathae):
                     os.makedirs(filegraphpathae)        
-                agf.angexp_temporal_evolution(inputfile['level'][0], inputfilev02['average_time'][0], df_aeronetdata,list(ast.literal_eval(inputfilev04['AE'][l])),filegraphpathae,graphnameae)
+                agf.angexp_temporal_evolution(inputfilev04.columns[4],inputfile['level'][0], inputfilev02['average_time'][0], df_aeronetdata,list(ast.literal_eval(inputfilev04['AE'][l])),filegraphpathae,graphnameae)
 
-
-
+        for m in range(0,len(inputfilev04['processed_boxplot_LR'])):
+            if inputfilev04['processed_boxplot_LR'][m] == 'on':
+                print('The boxplot LR graphic at '+ str(inputfilev04['LR'][m]) + ' nm will be plotted' )
+                filegraphpathlr = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[8],''.join([inputfilev04.columns[8],'_',str(inputfilev04['LR'][m]),'nm'])])
+                graphnamelr = ''.join([rawfilenames[0][0].replace('.directsun','_LR_'),str(inputfilev04['LR'][m]),'nm.',inputfilev04['graphic_file_type'][0]])
+                if not os.path.exists(filegraphpathlr):
+                    os.makedirs(filegraphpathlr)
+                agf.boxplot_temporal_evolution(inputfilev04.columns[7], inputfile['level'][0], aeronetdatabp, aeronetmeanbp, inputfilev04['LR'][m], filegraphpathlr, graphnamelr)

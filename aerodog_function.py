@@ -9,6 +9,7 @@ import os
 import math
 import numpy as np
 import pandas as pd
+import time
 
 '''
 =============================================
@@ -119,11 +120,11 @@ def lr1020(row):
 '''The Lidar ratio - Angstrom Exponent relation using 440 and 870 nm'''
 def lrae532(row):
         return np.log((row["LR_870nm"])/(row["LR_440nm"]))/(np.log(440/870))
-
+    
 '''The Lidar ratio calculation at 532 nm using LR values of 675 nm'''
 def lr532(row):
         return row["LR_675nm"]*(532/675)**((-1.)*row["LRAE_532nm"])
-    
+
 '''The  spectral  variability  of  the  aerosol  single  scatterring  albedo  (dSSA) - Delta Single Scattering Albedo '''
 def dssa(row):
    return row["SSA_440nm"]-row["SSA_675nm"]
@@ -175,4 +176,15 @@ def optical_products(df_function):
     df_function["AAE"]=df_function.apply(aae,axis=1)
     df_function["SAE"]=df_function.apply(sae,axis=1)
     df_function["dSSA"]=df_function.apply(dssa,axis=1)
-    return df_function       
+    return df_function
+
+def boxplotfunc(v3aeronetdata):
+    '''Adjusting Month variable for boxplot graphics ''' 
+    aeronetdata = globaltime_index(v3aeronetdata)
+    aeronetdata = aeronetdata.reset_index()
+    aeronetdata['Month'] = aeronetdata['globaltime'].dt.strftime('%m')
+     
+    '''Calculation of monthly average values for the boxplot graphics'''
+    aeronetmeanbp = aeronetdata.groupby(['Month']).mean()
+     
+    return aeronetdata, aeronetmeanbp
