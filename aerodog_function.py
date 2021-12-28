@@ -156,6 +156,33 @@ def aae(row):
 def sae(row):
    return (-1)*np.log((row["SAOD_440nm"])/(row["SAOD_675nm"]))/(np.log(440/675)) 
 
+'''Some aerosol products, such as AOD at 355 and 532 nm, or even Lidar ratio at 532 can be calculated appplying the Angstrom power law relationship (1,2)
+
+1 - Ångström, A. (1929). On the Atmospheric Transmission of Sun Radiation and on Dust in the Air. Geografiska Annaler, 11, 156–166. https://doi.org/10.2307/519399
+
+2 - Qian Li, Chengcai Li & Jietai Mao (2012) Evaluation of Atmospheric Aerosol Optical Depth Products at Ultraviolet Bands Derived from MODIS Products, Aerosol Science and Technology, 46:9, 1025-1034, DOI: 10.1080/02786826.2012.687475
+
+3 - Kaufman, Y. J. (1993), Aerosol optical thickness and atmospheric path radiance, J. Geophys. Res., 98( D2), 2677– 2692, doi:10.1029/92JD02427.
+
+The absorption and scattering components of AOD, AAOD and SAOD, the same components of Angstrom Exponent, AAE and SAE, were calculated using as reference 
+
+1 - Moosmüller, H., Chakrabarty, R. K., Ehlers, K. M., and Arnott, W. P.: Absorption Ångström coefficient, brown carbon, and aerosols: basic concepts, bulk matter, 
+and spherical particles, Atmos. Chem. Phys., 11, 1217–1225, https://doi.org/10.5194/acp-11-1217-2011, 2011.
+
+2 - Cazorla, A., Bahadur, R., Suski, K. J., Cahill, J. F., Chand, D., Schmid, B., Ramanathan, V., and Prather, K. A.: Relating aerosol absorption due to soot, 
+organic carbon, and dust to emission sources determined from in-situ chemical measurements, Atmos. Chem. Phys., 13, 9337–9350, 
+https://doi.org/10.5194/acp-13-9337-2013, 2013.
+
+3 - Cappa, C. D., Kolesar, K. R., Zhang, X., Atkinson, D. B., Pekour, M. S., Zaveri, R. A., Zelenyuk, A., and Zhang, Q.: Understanding the optical properties of 
+ambient sub- and supermicron particulate matter: results from the CARES 2010 field study in northern California, Atmos. Chem. Phys., 16, 6511–6535, 
+https://doi.org/10.5194/acp-16-6511-2016, 2016.
+
+4 - Moosmüller, H. and Chakrabarty, R. K.: Technical Note: Simple analytical relationships between Ångström coefficients of aerosol extinction, scattering, 
+absorption, and single scattering albedo, Atmos. Chem. Phys., 11, 10677–10680, https://doi.org/10.5194/acp-11-10677-2011, 2011.
+
+
+'''
+
 '''
 =============================================
 Functions to calculate aerosol optical parameters from direct-sun and inversion products from AERONET data measurements
@@ -204,3 +231,21 @@ def angmatrixfunc(df_aeronetdata):
     sae_data = weigth_1 * df_aeronetdata['AAE_440-870nm'] + weigth_2 * df_aeronetdata['EAE_440-870nm']
 
     return ssa_data, sae_data, derivssa
+
+''' The Angstrom Matrix Function was derived from the articles references
+The absorption and scattering components of AOD, AAOD and SAOD, the same components of Angstrom Exponent, AAE and SAE, were calculated using as reference 
+
+1 - Moosmüller, H., Chakrabarty, R. K., Ehlers, K. M., and Arnott, W. P.: Absorption Ångström coefficient, brown carbon, and aerosols: basic concepts, bulk matter, 
+and spherical particles, Atmos. Chem. Phys., 11, 1217–1225, https://doi.org/10.5194/acp-11-1217-2011, 2011.
+
+2 - Cazorla, A., Bahadur, R., Suski, K. J., Cahill, J. F., Chand, D., Schmid, B., Ramanathan, V., and Prather, K. A.: Relating aerosol absorption due to soot, 
+organic carbon, and dust to emission sources determined from in-situ chemical measurements, Atmos. Chem. Phys., 13, 9337–9350, 
+https://doi.org/10.5194/acp-13-9337-2013, 2013.
+
+3 - Cappa, C. D., Kolesar, K. R., Zhang, X., Atkinson, D. B., Pekour, M. S., Zaveri, R. A., Zelenyuk, A., and Zhang, Q.: Understanding the optical properties of 
+ambient sub- and supermicron particulate matter: results from the CARES 2010 field study in northern California, Atmos. Chem. Phys., 16, 6511–6535, 
+https://doi.org/10.5194/acp-16-6511-2016, 2016.
+
+4 - Moosmüller, H. and Chakrabarty, R. K.: Technical Note: Simple analytical relationships between Ångström coefficients of aerosol extinction, scattering, 
+absorption, and single scattering albedo, Atmos. Chem. Phys., 11, 10677–10680, https://doi.org/10.5194/acp-11-10677-2011, 2011
+'''

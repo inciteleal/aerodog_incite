@@ -13,6 +13,8 @@ import aerodog_graphics_function as agf
 
 '''
 =============================================
+MODULE 1 
+
 Reading the input raw directsun and inversion data from AERONET to organize - removing NaN or incorrect values
 These organized files is saved as version 01 raw data, i.e., v01)
 =============================================
@@ -38,6 +40,8 @@ for i in range(0, len(inputfilenames)):
 
 '''
 =============================================
+MODULE 2
+
 Reading the organized raw data in order to make a time average and merge all direct-sun and inversion data in to a single dataframe
 =============================================
 '''
@@ -77,6 +81,8 @@ for i in range(0, len(inputfilenamesv02)):
 
 '''
 =============================================
+MODULE 3
+
 Calculation of new optical products using direct-sun and inversion data 
 The new products are merged with the previous version 02 data (v02) in to a single dataframe and saved as version 03 data (v03)
 =============================================
@@ -87,25 +93,21 @@ if not os.path.exists(os.sep.join([rootdir, inputfilev02['v02outputdir'][0].repl
     os.makedirs(os.sep.join([rootdir, inputfilev02['v02outputdir'][0].replace('02-merged','03-merged').replace('datav02','datav03')]))
 df_aeronetdata.to_csv(savefilename_v03,float_format="%.6f",index=False)
 
+
 '''
 =============================================
-Using the version 3 data to organized data to boxplot graphics
+MODULE 4
+
+Using the version 3 organized data to plot graphics from AERONET products
 =============================================
 '''
+
+'''Organizing data to boxplot graphics'''
 aeronetdatabp, aeronetmeanbp = adf.boxplotfunc(df_aeronetdata)
 
-'''
-=============================================
-Using the version 3 data to organize data to Angstrom matrix graphics
-=============================================
-'''
+'''Organizing data to boxplot graphics to Angstrom matrix graphics'''
 ssa_data, sae_data, derivssa = adf.angmatrixfunc(df_aeronetdata)
 
-'''
-=============================================
-Using the organized data to plot graphics from AERONET products
-=============================================
-'''
 inputfilenamesv04 = [name for name in os.listdir(rootdir) if name.startswith('03-inputfile_graphics')]
 
 for i in range(0, len(inputfilenamesv04)):
@@ -151,12 +153,7 @@ for i in range(0, len(inputfilenamesv04)):
                     os.makedirs(filegraphpathlr)
                 agf.boxplot_temporal_evolution(inputfilev04.columns[7], inputfile['level'][0], aeronetdatabp, aeronetmeanbp, inputfilev04['LR'][m], filegraphpathlr, graphnamelr)
 
-'''
-=============================================
-Plotting Angstrom Matrix graphics
-=============================================
-'''
-
+'''Plotting Angstrom Matrix graphics'''
 filegraphpath_angmatrix = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],'processed_angstrom_matrix','processed_angstrom_matrix_440-870nm'])
 graphname_angmatrix = ''.join([rawfilenames[0][0].replace('.directsun','_Angs_Matrix_'),'440-870nm.',inputfilev04['graphic_file_type'][0]])
 if not os.path.exists(filegraphpath_angmatrix):
