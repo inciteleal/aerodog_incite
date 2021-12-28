@@ -9,7 +9,6 @@ import os
 import math
 import numpy as np
 import pandas as pd
-import time
 
 '''
 =============================================
@@ -93,9 +92,9 @@ Functions to calculate aerosol optical parameters from direct-sun and inversion 
 def aod532(row):
         return row["AOD_500nm"]*(500/532)**((-1.)*row["AE_440_675nm"])
 
-#'''Angstrom Exponent calculation at 355 nm'''
-#def ae355(row):
-#        return np.log((row["AOD_440nm"])/(row["AOD_340nm"]))/(np.log(340/440)) 
+'''Angstrom Exponent calculation at 355 nm'''
+def ae355(row):
+        return np.log((row["AOD_440nm"])/(row["AOD_340nm"]))/(np.log(340/440)) 
 
 '''AOD calculation at 355 nm'''
 def aod355(row):
@@ -124,6 +123,10 @@ def lrae532(row):
 '''The Lidar ratio calculation at 532 nm using LR values of 675 nm'''
 def lr532(row):
         return row["LR_675nm"]*(532/675)**((-1.)*row["LRAE_532nm"])
+
+'''The Lidar ratio calculation at 355 nm using LR values of 440 nm'''
+def lr355(row):
+        return row["LR_440nm"]*(355/440)**((-1.)*row["LRAE_532nm"])
 
 '''The  spectral  variability  of  the  aerosol  single  scatterring  albedo  (dSSA) - Delta Single Scattering Albedo '''
 def dssa(row):
@@ -169,6 +172,7 @@ def optical_products(df_function):
     df_function['LR_1020nm'] = df_function.apply(lr1020,axis=1)
     df_function['LRAE_532nm'] = df_function.apply(lrae532,axis=1)
     df_function['LR_532nm'] = df_function.apply(lr532,axis=1)
+    df_function['LR_355nm'] = df_function.apply(lr355,axis=1)
     df_function["AAOD_440nm"]=df_function.apply(aaod440,axis=1)
     df_function["AAOD_675nm"]=df_function.apply(aaod675,axis=1)
     df_function["SAOD_440nm"]=df_function.apply(saod440,axis=1)

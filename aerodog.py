@@ -8,8 +8,6 @@ Created on Wed Dec 23 17:45:08 2020
 import os
 import ast
 import pandas as pd
-from os import path
-from pathlib import Path
 import aerodog_function as adf
 import aerodog_graphics_function as agf
 

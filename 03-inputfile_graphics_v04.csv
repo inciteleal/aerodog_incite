@@ -1,9 +1,9 @@
 "AOD","processed_aod","processed_boxplot_aod","processed_aod_allgraphics","AE","processed_AE","processed_AE_allgraphics","LR","processed_boxplot_LR","v04outputdir","graphic_file_type"
 340,"on","off","on","340, 440","on","on",340,"off","04-graphics_Sao_Paulo_2017_2021_datav04","png"
-355,"off","off",,"380, 500","off",,355,"off",,
+355,"on","off",,"380, 500","off",,355,"on",,
 380,"off","off",,"440, 675","on",,380,"off",,
 440,"on","off",,"440, 870","off",,440,"off",,
-500,"off","off",,"500, 870","off",,500,"off",,
+500,"on","off",,"500, 870","off",,500,"off",,
 532,"on","off",,,,,532,"on",,
 675,"on","off",,,,,675,"off",,
 870,"off","off",,,,,870,"off",,
