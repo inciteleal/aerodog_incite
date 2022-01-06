@@ -7,6 +7,7 @@ AERODOG first version created on Wed Dec 23 17:45:08 2020
 """
 
 import os
+import ast
 import time
 import glob
 import math
@@ -316,12 +317,72 @@ def boxplot_temporal_evolution(graphicflag, datalevel, aeronetdatabp, aeronetmea
 #    plt.savefig(auxnamepdf)
     plt.show()
     plt.close(fig)
-    
-def angsmatrix_plot(ssa_data, sae_data, derivssa, df_aeronetdata, filegraphpath_angmatrix,graphname_angmatrix):
+
+def scatterplot_AODvsAE(graphicflag, datalevel, df_aeronetdata, lambdagraph, filegraphpath, graphname):
+
+    dateinstr = str.capitalize(df_aeronetdata['globaltime'][0].strftime('%b %Y'))
+    datefinalstr =  str.capitalize(df_aeronetdata['globaltime'][len(df_aeronetdata['globaltime'])-1].strftime('%b %Y'))
+    leveldata = ''.join(['Level ',str(datalevel)[0],'.',str(datalevel)[1]])
+    station_name = df_aeronetdata['AERONET_Site'][0].replace('_',' ')
+    measurement_title = 'AERONET Data - ' + dateinstr + ' to ' + datefinalstr + ' - ' + 'AOD vs AE Retrieval '\
+                 + leveldata + '\n' + station_name + ' Station'    
+
+#    if list(ast.literal_eval(lambdagraph))[0] == 355:
+#        colorgraphmean = 'rebeccapurple'
+#    elif list(ast.literal_eval(lambdagraph))[0] == 532:
+#        colorgraphmean = 'forestgreen'
+
+    yminlim = 0
+    ymaxlim = round(df_aeronetdata['AE_' + str(list(ast.literal_eval(lambdagraph))[1]) +'_' + str(list(ast.literal_eval(lambdagraph))[2])+'nm'].max())+0.5*(round(df_aeronetdata['AE_' + str(list(ast.literal_eval(lambdagraph))[1]) +'_' + str(list(ast.literal_eval(lambdagraph))[2])+'nm'].max()))
+    xminlim = 0
+    xmaxlim = round(2*df_aeronetdata['AOD_' + str(list(ast.literal_eval(lambdagraph))[0]) + 'nm'].max())
     mdpi=120
+        
+    sns.set(style = 'darkgrid')
+    fig,ax = plt.subplots(1, 1, sharey = 'row', figsize=(1200/mdpi, 800/mdpi),dpi=mdpi)
+    fig.suptitle(measurement_title, fontsize=18, fontweight='bold')
+    fig.subplots_adjust(top = 0.91)
+
+#    ax.plot(df_aeronetdata['AOD_' + str(list(ast.literal_eval(lambdagraph))[0]) + 'nm'].to_numpy(), df_aeronetdata['AE_' + str(list(ast.literal_eval(lambdagraph))[1]) +'_' + str(list(ast.literal_eval(lambdagraph))[2])+'nm'].to_numpy(), 
+#                           marker = 'o', color = colorgraphmean, markersize = 5, linestyle='none', alpha=0.5, label = '$AOD_{' + str(list(ast.literal_eval(lambdagraph))[0]) + '}$ vs. $AE_{' + str(list(ast.literal_eval(lambdagraph))[1]) +'\_' + str(list(ast.literal_eval(lambdagraph))[2]) +'}$',zorder=2)
+
+    plt.scatter(df_aeronetdata['AOD_' + str(list(ast.literal_eval(lambdagraph))[0]) + 'nm'].to_numpy(), df_aeronetdata['AE_' + str(list(ast.literal_eval(lambdagraph))[1]) +'_' + str(list(ast.literal_eval(lambdagraph))[2])+'nm'].to_numpy(), c = df_aeronetdata['LR_' + str(list(ast.literal_eval(lambdagraph))[0]) +'nm'], 
+                               cmap = 'Spectral_r', zorder=2)
+    plt.colorbar(label = 'LR at '+ str(list(ast.literal_eval(lambdagraph))[0]) + 'nm')
+    
+    plt.hlines(df_aeronetdata['AE_' + str(list(ast.literal_eval(lambdagraph))[1]) +'_' + str(list(ast.literal_eval(lambdagraph))[2])+'nm'].mean(), 0.0, xmaxlim, color = 'black', linestyle = 'dashed', linewidth = 1.3, zorder=10)
+    
+    plt.vlines(df_aeronetdata['AOD_' + str(list(ast.literal_eval(lambdagraph))[0]) + 'nm'].mean(), 0.0, ymaxlim, color = 'black', linestyle = 'dashed', linewidth = 1.3, zorder=5)
+    
+    ax.set_xlabel('Aerosol Optical Depth at ' + str(list(ast.literal_eval(lambdagraph))[0]) + 'nm \n', fontsize=18, fontweight='bold');
+    ax.set_ylabel('Angstrom Exponent relation ' + str(list(ast.literal_eval(lambdagraph))[1]) +'-' + str(list(ast.literal_eval(lambdagraph))[2])+'nm', fontsize=18, fontweight='bold');
+    ax.set_xlim(xminlim, xmaxlim)
+    ax.set_ylim(yminlim, ymaxlim)
+    ax.tick_params(axis='both', which='major', labelsize=15, width=5, length=5, color='black', direction='in')
+    for label in ax.get_xticklabels():
+            label.set_fontweight(550)
+    for label in ax.get_yticklabels():
+            label.set_fontweight(550)
+#    ax.legend(fontsize = 16, loc = 'best', markerscale = 1.5, handletextpad = 0.2)    
+    auxname = os.sep.join([filegraphpath, graphname])
+    plt.savefig(auxname)
+    plt.show()
+    plt.close(fig)
+        
+        
+def angsmatrix_plot(datalevel, ssa_data, sae_data, derivssa, df_aeronetdata, filegraphpath_angmatrix,graphname_angmatrix):
+    
+    mdpi=120
+    dateinstr = str.capitalize(df_aeronetdata['globaltime'][0].strftime('%b %Y'))
+    datefinalstr =  str.capitalize(df_aeronetdata['globaltime'][len(df_aeronetdata['globaltime'])-1].strftime('%b %Y'))
+    leveldata = ''.join(['Level ',str(datalevel)[0],'.',str(datalevel)[1]])
+    station_name = df_aeronetdata['AERONET_Site'][0].replace('_',' ')
+    measurement_title = 'AERONET Data - ' + dateinstr + ' to ' + datefinalstr + ' - ' + 'Angström Matrix '\
+                 + leveldata + '\n' + station_name + ' Station'       
+                 
     sns.set(style = 'darkgrid')
     fig1,ax = plt.subplots(1, 1, sharey = 'row', figsize=(1200/mdpi, 800/mdpi),dpi=mdpi,facecolor='w', edgecolor='k')
-    fig1.suptitle('measurement_title', fontsize=18, fontweight='bold')
+    fig1.suptitle(measurement_title, fontsize=18, fontweight='bold')
     fig1.subplots_adjust(top = 0.91, right = 1.05)
     plt.scatter(sae_data, df_aeronetdata['AAE_440-870nm'], c = derivssa, cmap = 'Spectral_r')
     plt.colorbar(label = 'dSSA(440-870nm)')
