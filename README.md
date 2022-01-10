@@ -1,5 +1,7 @@
 # AERONET Data Organization & Graphics - AERODOG
 
+[![DOI](https://zenodo.org/badge/440164026.svg)](https://zenodo.org/badge/latestdoi/440164026)
+
 This repository provides a python script to organize directsun and inversion AERONET data, using level 1.5 or 2.0. 
 
 The Dataset from AERONET Aerosol Optical Depth - Version 3 - level 1.5 or level 2.0 data (direct sun algorithm) and AERONET inversion data can be downloaded using [DAD script](https://github.com/inciteleal/dad_download_aeronet_data).
@@ -83,5 +85,9 @@ https://doi.org/10.5194/acp-13-9337-2013, 2013.
 7 - Cappa, C. D., Kolesar, K. R., Zhang, X., Atkinson, D. B., Pekour, M. S., Zaveri, R. A., Zelenyuk, A., and Zhang, Q.: Understanding the optical properties of ambient sub- and supermicron particulate matter: results from the CARES 2010 field study in northern California, Atmos. Chem. Phys., 16, 6511–6535, 
 https://doi.org/10.5194/acp-16-6511-2016, 2016.
 
+# Cooperation
 
+<div style="text-align: left;margin-top: 1em;">
+   <a href="https://zenodo.org/"><img src="https://about.zenodo.org/static/img/logos/zenodo-gradient-round.svg" alt="ZENODO"></a>
+</div>
 
