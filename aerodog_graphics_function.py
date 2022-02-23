@@ -53,6 +53,8 @@ def aod_temporal_evolution(graphicflag, datalevel, avgtime, aoddata, lambdaaod1,
     if graphicflag == 'AOD':
         gflag = 'Aerosol Optical Depth'
            
+#    pd.plotting.register_matplotlib_converters()
+    
     '''Graphics for individual AOD measurements - temporal evolution'''
     yminlim = 0
     ymaxlim = 2
