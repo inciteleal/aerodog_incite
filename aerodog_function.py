@@ -48,8 +48,8 @@ Function for organization of AERONET Aerosol Optical Depth (V3) - level1.5 or le
 =============================================
 '''
 def organizing_aeronet_data(rootdir,rawfile,filetype,use_cols,rowstoskip,rawlevel,rawdatadir,outputdir):
-    inputdir = os.sep.join([rootdir,rawdatadir]) 
-    newfiles = os.sep.join([inputdir, rawfile[0]])
+    inputdir = os.sep.join([rootdir,rawdatadir])
+    newfiles = os.sep.join([inputdir, rawfile])
     newfilepath = newfiles.replace(rawdatadir, outputdir).replace('_'+str(rawlevel)+'.'+filetype, '.'+str(rawlevel)+'_'+filetype+'_v01')
     f = pd.read_csv(newfiles,usecols=use_cols, skiprows=range(0, rowstoskip))
     f = f.replace(-999.,np.nan)
@@ -67,7 +67,7 @@ def mining_aeronet_data(rootdir,filetype,rawlevel,avgtime,rawdatadir,outputdir):
         inputdir = os.sep.join([rootdir,rawdatadir])
         files = [name for name in os.listdir(inputdir) if name.endswith(''.join([str(rawlevel),'.',filetype]))]
         lenfiles = len(files)
-        
+
         for j in range(0, lenfiles):
             aeronetfile = pd.read_csv(os.sep.join([inputdir, files[j]]))
             

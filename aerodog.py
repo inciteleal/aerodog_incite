@@ -60,8 +60,13 @@ for afile in inputfilenames:
     inputfile = pd.read_csv(newfile, sep = ',')
     print('Number of variables requested:', len(inputfile))
 
-    rawfilenames = []
-    
+    # bug 6-nov-2025
+    # Here, the code assumed only one input file for each product (e.g., aod).
+    # However, reading_aeronet_data() can return multiple files, which would cause
+    # a missmatch (rawfilenames[j] would not point to the j-th product file).
+    #
+    #rawfilenames = []
+
     # process all the lines in the input file
     for j in range(0,len(inputfile)):
 
@@ -76,13 +81,22 @@ for afile in inputfilenames:
             
             # Rawdata (downloaded with dad.py) is found in 00-rawdata/ folder
             rawdatadir = os.sep.join(['00-rawdata', inputfile['rawdatadir'][j]])
-            rawfilenames.append(adf.reading_aeronet_data(rootdir,inputfile['filetype'][j],rawdatadir))
+            # bug 6-nov-2025
+            # create a fresh list, instead of appending
+            #rawfilenames.append(adf.reading_aeronet_data(rootdir,inputfile['filetype'][j],rawdatadir))
+            rawfilenames = adf.reading_aeronet_data(rootdir,inputfile['filetype'][j],rawdatadir)
             print("List of files with that variable:")
-            print(rawfilenames[j])
+            print(rawfilenames)
             
-            adf.organizing_aeronet_data(rootdir,rawfilenames[j],inputfile['filetype'][j],list(ast.literal_eval(inputfile['use_cols'][j])),
-                                        inputfile['rows_to_skip'][j],inputfile['level'][j],rawdatadir,outputdir)
-                
+            # bug 6-nov-2025
+            # we cannot just read the j-th file from the cumulative list, we have to process all of them
+            #adf.organizing_aeronet_data(rootdir, rawfilenames[j],inputfile['filetype'][j],list(ast.literal_eval(inputfile['use_cols'][j])),
+            #                            inputfile['rows_to_skip'][j],inputfile['level'][j],rawdatadir,outputdir)
+
+            # loop over all the files for this variable
+            for arawfile in rawfilenames: 
+                adf.organizing_aeronet_data(rootdir, arawfile,inputfile['filetype'][j],list(ast.literal_eval(inputfile['use_cols'][j])),
+                                            inputfile['rows_to_skip'][j],inputfile['level'][j],rawdatadir,outputdir)
 
 print('''
 =============================================

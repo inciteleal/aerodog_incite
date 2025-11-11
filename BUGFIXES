@@ -1,0 +1,36 @@
+LIST OF BUGS DETECTED AND FIXED
+
+2025-NOV-6
+
+Module 1 assumed only one input file for each product (e.g., aod).
+However, reading_aeronet_data() can return multiple files (if they
+exist), which would cause a missmatch when sending just rawfilenames[j] to
+organizing_aeronet_data() (rawfilenames[j] would not point to the j-th
+product file). Here's the old problematic code: 
+
+for afile in inputfilenames:
+
+    newfile = os.sep.join([inputdir, afile])
+    inputfile = pd.read_csv(newfile, sep = ',')
+
+    #bug: we don't need a list, we have to process each file separately
+    rawfilenames = []
+    
+    for j in range(0,len(inputfile)):
+
+        if inputfile['process'][j] == 'on':
+
+            outputdir = os.sep.join(['01-organized', inputfile['outputdir'][j]])
+            if not os.path.exists(os.sep.join([rootdir, outputdir])):
+                os.makedirs(os.sep.join([rootdir, outputdir]))
+            
+            # Rawdata (downloaded with dad.py) is found in 00-rawdata/ folder
+            rawdatadir = os.sep.join(['00-rawdata', inputfile['rawdatadir'][j]])
+            #bug: adf.reading_aeronet_data() will return all files of the same filetype (e.g. aod)
+            #     all files will be appended to rawfilenames
+            rawfilenames.append(adf.reading_aeronet_data(rootdir,inputfile['filetype'][j],rawdatadir))
+
+            # bug: but only the j-th filename is used
+            adf.organizing_aeronet_data(rootdir,rawfilenames[j],inputfile['filetype'][j],list(ast.literal_eval(inputfile['use_cols'][j])),
+                                        inputfile['rows_to_skip'][j],inputfile['level'][j],rawdatadir,outputdir)
+                
