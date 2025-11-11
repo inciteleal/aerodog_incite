@@ -3,6 +3,11 @@ AERONET Data Organization & Graphics - AERODOG
 Script to organize directsun and inversion AERONET data (level 1.0, 1.5 or 2.0) into standardized folder and cleaning up spurious data
 Created on Wed Dec 23 17:45:08 2020
 @author: Alexandre C. Yoshida, Fábio J. S. Lopes and Alexandre Cacheffo
+
+Last update: November 11, 2025 by hbarbosa
+  - prints info to the user
+  - removed index for loop on filenames
+  - input files in a separate folder (like dad.py)
 """
 
 import os
@@ -25,20 +30,29 @@ These organized files is saved as version 01 raw data, i.e., v01)
 =============================================
 ''')
 
+# This follows the convection defined for the download tool (dad.py),
+# where input files go in a separate folder (input_dir).  That helps,
+# for example, if the user is processing multiple sites at the same
+# time.
 rootdir = os.getcwd()
 print('Locating input files...')
-inputfilenames = [name for name in os.listdir(rootdir) if name.startswith('01-inputfile_rawdata')]
+inputdatadir = 'input_dir'
+inputfilename = '01-inputfile_rawdata'
+inputdir = os.sep.join([rootdir, inputdatadir])
+
+#inputfilenames = [name for name in os.listdir(rootdir) if name.startswith('01-inputfile_rawdata')]
+inputfilenames = [name for name in os.listdir(inputdir) if name.startswith(inputfilename)]
 print('Number of 01-inputfiles to read:', len(inputfilenames))
 print('List of 01-inputfiles found:')
 print(inputfilenames)
 
 # loop over multiple 01-inputfiles
-for i in range(0, len(inputfilenames)):
+for afile in inputfilenames:
 
     # read the input file
     # step1 input file has the following format: 
     #    filetype,use_cols,rows_to_skip,level,rawdatadir,outputdir,process
-    newfile = os.sep.join([rootdir, inputfilenames[i]])
+    newfile = os.sep.join([inputdir, afile])
     print('Reading input file:', newfile)
 
     inputfile = pd.read_csv(newfile, sep = ',')
@@ -70,18 +84,22 @@ Reading the organized raw data in order to make a time average and merge all dir
 ''')
 
 print('Locating input files...')
-inputfilenamesv02 = [name for name in os.listdir(rootdir) if name.startswith('02-inputfile_organized')]
+inputdatadirv02 = 'input_dir'
+inputfilenamev02 = '02-inputfile_organized'
+inputdirv02 = os.sep.join([rootdir, inputdatadirv02])
+
+inputfilenamesv02 = [name for name in os.listdir(inputdirv02) if name.startswith(inputfilenamev02)]
 print('Number of input files to read:', len(inputfilenamesv02))
 print('List of input files found:')
 print(inputfilenamesv02)
 
 # loop over multiple input files
-for i in range(0, len(inputfilenamesv02)):
+for afile in inputfilenamesv02:
         
         # read the input file
         # step2 input file has the following format: 
         #    filetype,level,average_time,v01datadir,v02outputdir,process
-        newfilev02 = os.sep.join([rootdir, inputfilenamesv02[i]])
+        newfilev02 = os.sep.join([inputdirv02, afile])
         print('Reading input file:', newfilev02)
 
         inputfilev02 = pd.read_csv(newfilev02, sep = ',')
@@ -152,11 +170,30 @@ aeronetdatabp, aeronetmeanbp = adf.boxplotfunc(df_aeronetdata)
 '''Organizing data to boxplot graphics to Angstrom matrix graphics'''
 ssa_data, sae_data, derivssa = adf.angmatrixfunc(df_aeronetdata)
 
-inputfilenamesv04 = [name for name in os.listdir(rootdir) if name.startswith('03-inputfile_graphics')]
+print('Locating input files...')
+inputdatadirv04 = 'input_dir'
+inputfilenamev04 = '03-inputfile_graphics'
+inputdirv04 = os.sep.join([rootdir, inputdatadirv04])
 
-for i in range(0, len(inputfilenamesv04)):
-        newfilev04 = os.sep.join([rootdir, inputfilenamesv04[i]])
+#inputfilenamesv04 = [name for name in os.listdir(rootdir) if name.startswith('03-inputfile_graphics')]
+inputfilenamesv04 = [name for name in os.listdir(inputdirv04) if name.startswith(inputfilenamev04)]
+print('Number of input files to read:', len(inputfilenamesv04))
+print('List of input files found:')
+print(inputfilenamesv04)
+
+# loop over multiple input files
+for afile in inputfilenamesv04:
+
+        # read the input file
+        # step3 input file has the following format: 
+        #    <TBD>
+
+        #newfilev04 = os.sep.join([rootdir, inputfilenamesv04[i]])
+        newfilev04 = os.sep.join([inputdirv04, afile])
+        print('Reading input file:', newfilev04)
+
         inputfilev04 = pd.read_csv(newfilev04, sep = ',')
+        print('Number of variables requested:', len(inputfilev04))
                 
         if not os.path.exists(os.sep.join([rootdir, inputfilev04['v04outputdir'][0]])):
                     os.makedirs(os.sep.join([rootdir, inputfilev04['v04outputdir'][0]]))
