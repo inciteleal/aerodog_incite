@@ -11,25 +11,48 @@ import pandas as pd
 import aerodog_function as adf
 import aerodog_graphics_function as agf
 
-'''
+# During development, force the reload of our libraries
+import importlib
+importlib.reload(adf)
+importlib.reload(agf)
+
+print('''
 =============================================
 MODULE 1 
 
 Reading the input raw directsun and inversion data from AERONET to organize - removing NaN or incorrect values
 These organized files is saved as version 01 raw data, i.e., v01)
 =============================================
-'''
+''')
 
 rootdir = os.getcwd()
+print('Locating input files...')
 inputfilenames = [name for name in os.listdir(rootdir) if name.startswith('01-inputfile_rawdata')]
+print('Number of 01-inputfiles to read:', len(inputfilenames))
+print('List of 01-inputfiles found:')
+print(inputfilenames)
 
+# loop over multiple 01-inputfiles
 for i in range(0, len(inputfilenames)):
+
+    # read the input file
+    # step1 input file has the following format: 
+    #    filetype,use_cols,rows_to_skip,level,rawdatadir,outputdir,process
     newfile = os.sep.join([rootdir, inputfilenames[i]])
+    print('Reading input file:', newfile)
+
     inputfile = pd.read_csv(newfile, sep = ',')
+    print('Number of variables requested:', len(inputfile))
+
     rawfilenames = []
     
+    # process all the lines in the input file
     for j in range(0,len(inputfile)):
+
+        # only process the lines marked as 'on' in the input file
         if inputfile['process'][j] == 'on':
+            print("processing variable " + inputfile['filetype'][j])
+            
             if not os.path.exists(os.sep.join([rootdir, inputfile['outputdir'][j]])):
                 os.makedirs(os.sep.join([rootdir, inputfile['outputdir'][j]]))
                     
@@ -38,28 +61,49 @@ for i in range(0, len(inputfilenames)):
             adf.organizing_aeronet_data(rootdir,rawfilenames[j],inputfile['filetype'][j],list(ast.literal_eval(inputfile['use_cols'][j])),inputfile['rows_to_skip'][j],inputfile['level'][j],inputfile['rawdatadir'][j],inputfile['outputdir'][j])
                 
 
-'''
+print('''
 =============================================
 MODULE 2
 
 Reading the organized raw data in order to make a time average and merge all direct-sun and inversion data in to a single dataframe
 =============================================
-'''
+''')
 
+print('Locating input files...')
 inputfilenamesv02 = [name for name in os.listdir(rootdir) if name.startswith('02-inputfile_organized')]
+print('Number of input files to read:', len(inputfilenamesv02))
+print('List of input files found:')
+print(inputfilenamesv02)
 
+# loop over multiple input files
 for i in range(0, len(inputfilenamesv02)):
+        
+        # read the input file
+        # step2 input file has the following format: 
+        #    filetype,level,average_time,v01datadir,v02outputdir,process
         newfilev02 = os.sep.join([rootdir, inputfilenamesv02[i]])
+        print('Reading input file:', newfilev02)
+
         inputfilev02 = pd.read_csv(newfilev02, sep = ',')
+        print('Number of variables requested:', len(inputfilev02))
 
         filenamesv02 = []
         aeronetfilev02 = []
+
+        # process all the lines in the input file
         for j in range(0,len(inputfilev02)):
+
+            # only process the lines marked as 'on' in the input file
             if inputfilev02['process'][j] == 'on':                
+                print("processing variable " + inputfilev02['filetype'][j])
+
                 if not os.path.exists(os.sep.join([rootdir, inputfilev02['v02outputdir'][j]])):
                     os.makedirs(os.sep.join([rootdir, inputfilev02['v02outputdir'][j]]))
 
                 filenamesv02.append(adf.reading_aeronet_data(rootdir,inputfilev02['filetype'][j],inputfilev02['v01datadir'][j]))                    
+                print("List of files with that variable:")
+                print(filenamesv02)
+
                 aeronetfilev02.append(adf.mining_aeronet_data(rootdir,inputfilev02['filetype'][j],inputfilev02['level'][j],inputfilev02['average_time'][j],inputfilev02['v01datadir'][j],inputfilev02['v02outputdir'][j]))
                 
                 main_aeronet_df = pd.concat(aeronetfilev02,axis=1,join='inner')
@@ -79,14 +123,14 @@ for i in range(0, len(inputfilenamesv02)):
                 savefilename_v02 = os.sep.join([rootdir,inputfilev02['v02outputdir'][j],''.join([filenamesv02[j][0],'&inversion_merged_v02'])])
             main_aeronet_df.to_csv(savefilename_v02,float_format="%.6f",index=False)
 
-'''
+print('''
 # =============================================
 # MODULE 3
 
 # Calculation of new optical products using direct-sun and inversion data 
 # The new products are merged with the previous version 02 data (v02) in to a single dataframe and saved as version 03 data (v03)
 # =============================================
-# '''
+# ''')
 df_aeronetdata = adf.optical_products(main_aeronet_df)
 savefilename_v03 = savefilename_v02.replace('02-merged','03-merged').replace('datav02','datav03').replace('directsun&inversion_merged_v02','directsun&inversion_merged_v03')
 if not os.path.exists(os.sep.join([rootdir, inputfilev02['v02outputdir'][0].replace('02-merged','03-merged').replace('datav02','datav03')])):
@@ -94,13 +138,13 @@ if not os.path.exists(os.sep.join([rootdir, inputfilev02['v02outputdir'][0].repl
 df_aeronetdata.to_csv(savefilename_v03,float_format="%.6f",index=False)
 
 
-'''
+print('''
 =============================================
 MODULE 4
 
 Using the version 3 organized data to plot graphics from AERONET products
 =============================================
-'''
+''')
 
 '''Organizing data to boxplot graphics'''
 aeronetdatabp, aeronetmeanbp = adf.boxplotfunc(df_aeronetdata)
