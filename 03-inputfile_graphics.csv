@@ -1,0 +1,11 @@
+AOD,processed_aod,processed_boxplot_aod,processed_aod_allgraphics,AE,processed_AE,processed_AE_allgraphics,LR,processed_boxplot_LR,AOD_vs_AE,AOD_vs_AE_graphics,v04outputdir,graphic_file_type
+340,on,off,on,"340, 440",on,on,340,off,"355, 340,440",on,04-graphics_Sao_Paulo_2024_2024_datav04,png
+355,on,on,,"380, 500",off,,355,on,"532, 440, 675",on,,
+380,off,off,,"440, 675",on,,380,off,,,,
+440,on,off,,"440, 870",off,,440,off,,,,
+500,on,off,,"500, 870",off,,500,off,,,,
+532,on,on,,,,,532,on,,,,
+675,on,off,,,,,675,off,,,,
+870,off,off,,,,,870,off,,,,
+1020,on,on,,,,,1020,on,,,,
+1640,off,off,,,,,1640,off,,,,
