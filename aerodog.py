@@ -8,9 +8,11 @@ Last update: November 11, 2025 by hbarbosa
   - prints info to the user
   - removed index for loop on filenames
   - input files in a separate folder (like dad.py)
+  - output file in separate folders, per level (01-organized, 02-merged, 03-derived, 04-graphics)
 """
 
 import os
+import sys
 import ast
 import pandas as pd
 import aerodog_function as adf
@@ -65,14 +67,21 @@ for afile in inputfilenames:
 
         # only process the lines marked as 'on' in the input file
         if inputfile['process'][j] == 'on':
-            print("processing variable " + inputfile['filetype'][j])
+            print("processing variable: " + inputfile['filetype'][j])
+
+            # Output from step 1 is saved in 01-organized/ folder
+            outputdir = os.sep.join(['01-organized', inputfile['outputdir'][j]])
+            if not os.path.exists(os.sep.join([rootdir, outputdir])):
+                os.makedirs(os.sep.join([rootdir, outputdir]))
             
-            if not os.path.exists(os.sep.join([rootdir, inputfile['outputdir'][j]])):
-                os.makedirs(os.sep.join([rootdir, inputfile['outputdir'][j]]))
-                    
-            rawfilenames.append(adf.reading_aeronet_data(rootdir,inputfile['filetype'][j],inputfile['rawdatadir'][j]))
+            # Rawdata (downloaded with dad.py) is found in 00-rawdata/ folder
+            rawdatadir = os.sep.join(['00-rawdata', inputfile['rawdatadir'][j]])
+            rawfilenames.append(adf.reading_aeronet_data(rootdir,inputfile['filetype'][j],rawdatadir))
+            print("List of files with that variable:")
+            print(rawfilenames[j])
             
-            adf.organizing_aeronet_data(rootdir,rawfilenames[j],inputfile['filetype'][j],list(ast.literal_eval(inputfile['use_cols'][j])),inputfile['rows_to_skip'][j],inputfile['level'][j],inputfile['rawdatadir'][j],inputfile['outputdir'][j])
+            adf.organizing_aeronet_data(rootdir,rawfilenames[j],inputfile['filetype'][j],list(ast.literal_eval(inputfile['use_cols'][j])),
+                                        inputfile['rows_to_skip'][j],inputfile['level'][j],rawdatadir,outputdir)
                 
 
 print('''
@@ -108,23 +117,37 @@ for afile in inputfilenamesv02:
         filenamesv02 = []
         aeronetfilev02 = []
 
-        # process all the lines in the input file
+        # process all the lines in the input file (typically one product per line, all from the same site)
+        # then, merge all variables into a single file
         for j in range(0,len(inputfilev02)):
 
             # only process the lines marked as 'on' in the input file
             if inputfilev02['process'][j] == 'on':                
-                print("processing variable " + inputfilev02['filetype'][j])
+                print("processing variable: " + inputfilev02['filetype'][j])
 
-                if not os.path.exists(os.sep.join([rootdir, inputfilev02['v02outputdir'][j]])):
-                    os.makedirs(os.sep.join([rootdir, inputfilev02['v02outputdir'][j]]))
+                # Output from step 2 is saved in 02-merged/ folder
+                outputdirv02 = os.sep.join(['02-merged', inputfilev02['v02outputdir'][j]])
+                if not os.path.exists(os.sep.join([rootdir, outputdirv02])):
+                    os.makedirs(os.sep.join([rootdir, outputdirv02]))
 
-                filenamesv02.append(adf.reading_aeronet_data(rootdir,inputfilev02['filetype'][j],inputfilev02['v01datadir'][j]))                    
+                # Output from step 1 is found in 01-organized/ folder
+                outputdirv01 = os.sep.join(['01-organized', inputfilev02['v01datadir'][j]])
+                filenamesv02.append(adf.reading_aeronet_data(rootdir,inputfilev02['filetype'][j],outputdirv01))                    
                 print("List of files with that variable:")
-                print(filenamesv02)
+                print(filenamesv02[j])
 
-                aeronetfilev02.append(adf.mining_aeronet_data(rootdir,inputfilev02['filetype'][j],inputfilev02['level'][j],inputfilev02['average_time'][j],inputfilev02['v01datadir'][j],inputfilev02['v02outputdir'][j]))
-                
+                # why do we list the files above, if the next function will list them again??
+                aeronetfilev02.append(adf.mining_aeronet_data(rootdir,inputfilev02['filetype'][j],inputfilev02['level'][j],inputfilev02['average_time'][j],outputdirv01,outputdirv02))
+
+                print("number of PDs in concat = ",len(aeronetfilev02))
+                # this is wrong... how can we concat() before finish reading all files/variables?
                 main_aeronet_df = pd.concat(aeronetfilev02,axis=1,join='inner')
+                # this is also wrong... how can we manually change the column names? what if the user don't download the same columns?
+                # or if the products in the input file come in a different order ?!?!?
+                print(main_aeronet_df)
+                print("number of clumns after concat = ", len(main_aeronet_df.columns))
+                # uhm... what happens if we rename columns that don't exist? maybe it doesn't give an error?
+                # anyway, it would be better to concat/rename only once, after reading all files/products/variables
                 main_aeronet_df = main_aeronet_df.rename(columns = {'440-870_Angstrom_Exponent': 'AE_440_870nm', '380-500_Angstrom_Exponent': 'AE_380_500nm', '440-675_Angstrom_Exponent': 'AE_440_675nm', '500-870_Angstrom_Exponent': 'AE_500_870nm', '340-440_Angstrom_Exponent': 'AE_340_440nm',\
                                                                     'Single_Scattering_Albedo[440nm]': 'SSA_440nm', 'Single_Scattering_Albedo[675nm]': 'SSA_675nm', 'Single_Scattering_Albedo[870nm]': 'SSA_870nm', 'Single_Scattering_Albedo[1020nm]': 'SSA_1020nm', \
                                                                     '180.000000[440nm]': 'pfn180_440nm', '180.000000[675nm]': 'pfn180_675nm', '180.000000[870nm]': 'pfn180_870nm', '180.000000[1020nm]': 'pfn180_1020nm', \
@@ -136,10 +159,20 @@ for afile in inputfilenamesv02:
                                                                     'Extinction_Angstrom_Exponent_440-870nm-Total': 'EAE_440-870nm',\
                                                                     'Depolarization_Ratio[440nm]': 'DepRatio_440nm', 'Depolarization_Ratio[675nm]': 'DepRatio_675nm', 'Depolarization_Ratio[870nm]': 'DepRatio_870nm', 'Depolarization_Ratio[1020nm]': 'DepRatio_1020nm'})
                 main_aeronet_df = main_aeronet_df.reset_index()
-            
+
+            # potential bug: if 'directsun' is not one of the variables, savefilename_v02 is never defined
+            # even if it is present, but it is not the first line... then filename will be used before being defined
             if inputfilev02['filetype'][j] == 'directsun':
-                savefilename_v02 = os.sep.join([rootdir,inputfilev02['v02outputdir'][j],''.join([filenamesv02[j][0],'&inversion_merged_v02'])])
+                #bug - filename should not depend on the variables read.
+                # this is the 'merged' file, we should just use that instead
+                savefilename_v02 = os.sep.join([rootdir,outputdirv02,filenamesv02[j][0].replace('directsun','merged')])
+                #savefilename_v02 = os.sep.join([rootdir,outputdirv02,''.join([filenamesv02[j][0],'_inversion_merged_v02'])])
+
+            print('saving the merged DF...')
+            # BUG: we are saving the merged DF after reading each line (even the ones not processed = off)
+            # the merge should be saved only once
             main_aeronet_df.to_csv(savefilename_v02,float_format="%.6f",index=False)
+
 
 print('''
 # =============================================
@@ -147,12 +180,20 @@ print('''
 
 # Calculation of new optical products using direct-sun and inversion data 
 # The new products are merged with the previous version 02 data (v02) in to a single dataframe and saved as version 03 data (v03)
+# This module uses the same input file as module 2
 # =============================================
 # ''')
+
+# BUG - code below would only process main_aeronet_df (the last merged dataframe in memory)
+# and it would save it based on the savefilename_v02 (the last saved filename)
+
+# we need to read the list of merged CSV files saved to disk
+
 df_aeronetdata = adf.optical_products(main_aeronet_df)
-savefilename_v03 = savefilename_v02.replace('02-merged','03-merged').replace('datav02','datav03').replace('directsun&inversion_merged_v02','directsun&inversion_merged_v03')
-if not os.path.exists(os.sep.join([rootdir, inputfilev02['v02outputdir'][0].replace('02-merged','03-merged').replace('datav02','datav03')])):
-    os.makedirs(os.sep.join([rootdir, inputfilev02['v02outputdir'][0].replace('02-merged','03-merged').replace('datav02','datav03')]))
+savefilename_v03 = savefilename_v02.replace('02-merged','03-derived').replace('datav02','datav03').replace('merged','derived')
+print('savefilename_v03 = ',savefilename_v03)
+if not os.path.exists(os.path.dirname(savefilename_v03)):
+    os.makedirs(os.path.dirname(savefilename_v03))
 df_aeronetdata.to_csv(savefilename_v03,float_format="%.6f",index=False)
 
 
@@ -172,7 +213,7 @@ ssa_data, sae_data, derivssa = adf.angmatrixfunc(df_aeronetdata)
 
 print('Locating input files...')
 inputdatadirv04 = 'input_dir'
-inputfilenamev04 = '03-inputfile_graphics'
+inputfilenamev04 = '04-inputfile_graphics'
 inputdirv04 = os.sep.join([rootdir, inputdatadirv04])
 
 #inputfilenamesv04 = [name for name in os.listdir(rootdir) if name.startswith('03-inputfile_graphics')]
@@ -195,8 +236,8 @@ for afile in inputfilenamesv04:
         inputfilev04 = pd.read_csv(newfilev04, sep = ',')
         print('Number of variables requested:', len(inputfilev04))
                 
-        if not os.path.exists(os.sep.join([rootdir, inputfilev04['v04outputdir'][0]])):
-                    os.makedirs(os.sep.join([rootdir, inputfilev04['v04outputdir'][0]]))
+        if not os.path.exists(os.sep.join([rootdir, '04-graphics', inputfilev04['v04outputdir'][0]])):
+                    os.makedirs(os.sep.join([rootdir, '04-graphics', inputfilev04['v04outputdir'][0]]))
         
         # for j in range(0,len(inputfilev04['processed_aod'])):
         #     if inputfilev04['processed_aod'][j] == 'on':
@@ -237,14 +278,16 @@ for afile in inputfilenamesv04:
         for n in range(0,len(inputfilev04['processed_boxplot_LR'])):
             if inputfilev04['processed_boxplot_LR'][n] == 'on':
                 print('The boxplot LR graphic at '+ str(inputfilev04['LR'][n]) + ' nm will be plotted' )
-                filegraphpathlr = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[8],''.join([inputfilev04.columns[8],'_',str(inputfilev04['LR'][n]),'nm'])])
+                filegraphpathlr = os.sep.join([rootdir, '04-graphics', inputfilev04['v04outputdir'][0],inputfilev04.columns[8],''.join([inputfilev04.columns[8],'_',str(inputfilev04['LR'][n]),'nm'])])
+                print('filegraphpathlr = ',filegraphpathlr)
                 graphnamelr = ''.join([rawfilenames[0][0].replace('.directsun','_LR_'),str(inputfilev04['LR'][n]),'nm.',inputfilev04['graphic_file_type'][0]])
+                print('graphnamelr = ',graphnamelr)
                 if not os.path.exists(filegraphpathlr):
                     os.makedirs(filegraphpathlr)
                 agf.boxplot_temporal_evolution(inputfilev04.columns[7], inputfile['level'][0], aeronetdatabp, aeronetmeanbp, inputfilev04['LR'][n], filegraphpathlr, graphnamelr)
 
 '''Plotting Angstrom Matrix graphics'''
-filegraphpath_angmatrix = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],'processed_angstrom_matrix','processed_angstrom_matrix_440-870nm'])
+filegraphpath_angmatrix = os.sep.join([rootdir, '04-graphics', inputfilev04['v04outputdir'][0],'processed_angstrom_matrix','processed_angstrom_matrix_440-870nm'])
 graphname_angmatrix = ''.join([rawfilenames[0][0].replace('.directsun','_Angs_Matrix_'),'440-870nm.',inputfilev04['graphic_file_type'][0]])
 if not os.path.exists(filegraphpath_angmatrix):
     os.makedirs(filegraphpath_angmatrix)
