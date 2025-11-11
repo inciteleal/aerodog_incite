@@ -302,7 +302,7 @@ def boxplot_temporal_evolution(graphicflag, datalevel, aeronetdatabp, aeronetmea
              linewidth = 1, label = 'Monthly mean ' + graphicflag + ' at ' + str(lambdagraph) + ' nm')
     sns.boxplot(x = 'Month', y = graphicflag + '_' + str(lambdagraph) + 'nm', data = aeronetdatabp, color = colorbox, 
                 linewidth = 1, saturation = 1, flierprops = dict(marker = 'o', markersize = 3))
-    ax.grid(b = True)
+    # ax.grid(b = True)
     ax.set_ylabel(gflag + ' at ' +str(lambdagraph) + 'nm \nMonthly Columns', fontsize=18, fontweight='bold');
     ax.set_xlabel('Month of the Year', fontsize=18, fontweight='bold');
     ax.set_ylim(yminlim, ymaxlim)
@@ -352,9 +352,9 @@ def scatterplot_AODvsAE(graphicflag, datalevel, df_aeronetdata, lambdagraph, fil
                                cmap = 'Spectral_r', zorder=2)
     plt.colorbar(label = 'LR at '+ str(list(ast.literal_eval(lambdagraph))[0]) + 'nm')
     
-    plt.hlines(df_aeronetdata['AE_' + str(list(ast.literal_eval(lambdagraph))[1]) +'_' + str(list(ast.literal_eval(lambdagraph))[2])+'nm'].mean(), 0.0, xmaxlim, color = 'black', linestyle = 'dashed', linewidth = 1.3, zorder=10)
+    plt.hlines(df_aeronetdata['AE_' + str(list(ast.literal_eval(lambdagraph))[1]) +'_' + str(list(ast.literal_eval(lambdagraph))[2])+'nm'].mean(numeric_only=True), 0.0, xmaxlim, color = 'black', linestyle = 'dashed', linewidth = 1.3, zorder=10)
     
-    plt.vlines(df_aeronetdata['AOD_' + str(list(ast.literal_eval(lambdagraph))[0]) + 'nm'].mean(), 0.0, ymaxlim, color = 'black', linestyle = 'dashed', linewidth = 1.3, zorder=5)
+    plt.vlines(df_aeronetdata['AOD_' + str(list(ast.literal_eval(lambdagraph))[0]) + 'nm'].mean(numeric_only=True), 0.0, ymaxlim, color = 'black', linestyle = 'dashed', linewidth = 1.3, zorder=5)
     
     ax.set_xlabel('Aerosol Optical Depth at ' + str(list(ast.literal_eval(lambdagraph))[0]) + 'nm \n', fontsize=18, fontweight='bold');
     ax.set_ylabel('Angstrom Exponent relation ' + str(list(ast.literal_eval(lambdagraph))[1]) +'-' + str(list(ast.literal_eval(lambdagraph))[2])+'nm', fontsize=18, fontweight='bold');

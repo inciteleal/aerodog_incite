@@ -73,7 +73,7 @@ def mining_aeronet_data(rootdir,filetype,rawlevel,avgtime,rawdatadir,outputdir):
             
             '''Applying func1 (date&Time as index) in AOD, SSA, PFN and TAB files - resample as XX minutes mean data '''
             aeronetfile_index = globaltime_index(aeronetfile)
-            aeronetfile_mean = aeronetfile_index.groupby('AERONET_Site').resample(avgtime).mean()
+            aeronetfile_mean = aeronetfile_index.groupby('AERONET_Site').resample(avgtime).mean(numeric_only=True)
             aeronetfile_mean = aeronetfile_mean.dropna()
             
         return aeronetfile_mean
@@ -216,7 +216,7 @@ def boxplotfunc(v3aeronetdata):
     aeronetdata['Month'] = aeronetdata['globaltime'].dt.strftime('%m')
      
     '''Calculation of monthly average values for the boxplot graphics'''
-    aeronetmeanbp = aeronetdata.groupby(['Month']).mean()
+    aeronetmeanbp = aeronetdata.groupby(['Month']).mean(numeric_only=True)
      
     return aeronetdata, aeronetmeanbp
 

@@ -80,13 +80,13 @@ for i in range(0, len(inputfilenamesv02)):
             main_aeronet_df.to_csv(savefilename_v02,float_format="%.6f",index=False)
 
 '''
-=============================================
-MODULE 3
+# =============================================
+# MODULE 3
 
-Calculation of new optical products using direct-sun and inversion data 
-The new products are merged with the previous version 02 data (v02) in to a single dataframe and saved as version 03 data (v03)
-=============================================
-'''
+# Calculation of new optical products using direct-sun and inversion data 
+# The new products are merged with the previous version 02 data (v02) in to a single dataframe and saved as version 03 data (v03)
+# =============================================
+# '''
 df_aeronetdata = adf.optical_products(main_aeronet_df)
 savefilename_v03 = savefilename_v02.replace('02-merged','03-merged').replace('datav02','datav03').replace('directsun&inversion_merged_v02','directsun&inversion_merged_v03')
 if not os.path.exists(os.sep.join([rootdir, inputfilev02['v02outputdir'][0].replace('02-merged','03-merged').replace('datav02','datav03')])):
@@ -117,41 +117,41 @@ for i in range(0, len(inputfilenamesv04)):
         if not os.path.exists(os.sep.join([rootdir, inputfilev04['v04outputdir'][0]])):
                     os.makedirs(os.sep.join([rootdir, inputfilev04['v04outputdir'][0]]))
         
-        for j in range(0,len(inputfilev04['processed_aod'])):
-            if inputfilev04['processed_aod'][j] == 'on':
-                print('The AOD graphic at '+ str(inputfilev04['AOD'][j]) + ' nm will be plotted' )
-                filegraphpath = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[1],''.join([inputfilev04.columns[1],'_',str(inputfilev04['AOD'][j]),'nm'])])
-                graphname = ''.join([rawfilenames[0][0].replace('.directsun','_AOD_'),str(inputfilev04['AOD'][j]),'nm.',inputfilev04['graphic_file_type'][0]])
-                if not os.path.exists(filegraphpath):
-                    os.makedirs(filegraphpath)
-                agf.aod_temporal_evolution(inputfilev04.columns[0], inputfile['level'][0], inputfilev02['average_time'][0], df_aeronetdata,inputfilev04['AOD'][j],filegraphpath,graphname)
+        # for j in range(0,len(inputfilev04['processed_aod'])):
+        #     if inputfilev04['processed_aod'][j] == 'on':
+        #         print('The AOD graphic at '+ str(inputfilev04['AOD'][j]) + ' nm will be plotted' )
+        #         filegraphpath = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[1],''.join([inputfilev04.columns[1],'_',str(inputfilev04['AOD'][j]),'nm'])])
+        #         graphname = ''.join([rawfilenames[0][0].replace('.directsun','_AOD_'),str(inputfilev04['AOD'][j]),'nm.',inputfilev04['graphic_file_type'][0]])
+        #         if not os.path.exists(filegraphpath):
+        #             os.makedirs(filegraphpath)
+        #         agf.aod_temporal_evolution(inputfilev04.columns[0], inputfile['level'][0], inputfilev02['average_time'][0], df_aeronetdata,inputfilev04['AOD'][j],filegraphpath,graphname)
                        
-        for k in range(0,len(inputfilev04['processed_aod_allgraphics'].dropna())):
-            if inputfilev04['processed_aod_allgraphics'][k] == 'on':
-                print('The AOD graphics of all wavelengths will be plotted')
-                filegraphpathall = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[3].replace('graphics','wavelengths')])
-                graphnameall = ''.join([rawfilenames[0][0].replace('.directsun','_AOD_'),'allwavelengths.',inputfilev04['graphic_file_type'][0]])
-                if not os.path.exists(filegraphpathall):
-                    os.makedirs(filegraphpathall)
-                agf.allaod_temporal_evolution(inputfilev04.columns[0],inputfile['level'][0], inputfilev02['average_time'][0], df_aeronetdata, inputfilev04['AOD'], inputfilev04['processed_aod'],filegraphpathall,graphnameall)
+        # for k in range(0,len(inputfilev04['processed_aod_allgraphics'].dropna())):
+        #     if inputfilev04['processed_aod_allgraphics'][k] == 'on':
+        #         print('The AOD graphics of all wavelengths will be plotted')
+        #         filegraphpathall = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[3].replace('graphics','wavelengths')])
+        #         graphnameall = ''.join([rawfilenames[0][0].replace('.directsun','_AOD_'),'allwavelengths.',inputfilev04['graphic_file_type'][0]])
+        #         if not os.path.exists(filegraphpathall):
+        #             os.makedirs(filegraphpathall)
+        #         agf.allaod_temporal_evolution(inputfilev04.columns[0],inputfile['level'][0], inputfilev02['average_time'][0], df_aeronetdata, inputfilev04['AOD'], inputfilev04['processed_aod'],filegraphpathall,graphnameall)
 
-        for l in range(0,len(inputfilev04['processed_AE'].dropna())):
-            if inputfilev04['processed_AE'][l] == 'on':
-                print('The Angstrom Exponent graphic relation at '+ str(list(ast.literal_eval(inputfilev04['AE'][l]))[0]) + '-' + str(list(ast.literal_eval(inputfilev04['AE'][l]))[1]) + ' nm will be plotted' )
-                filegraphpathae = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[5],''.join([inputfilev04.columns[5],str(list(ast.literal_eval(inputfilev04['AE'][l]))[0]),'-',str(list(ast.literal_eval(inputfilev04['AE'][l]))[1]),'nm'])])
-                graphnameae = ''.join([rawfilenames[0][0].replace('.directsun','_AE'),''.join([str(list(ast.literal_eval(inputfilev04['AE'][l]))[0]),'-',str(list(ast.literal_eval(inputfilev04['AE'][l]))[1])]),'nm.',inputfilev04['graphic_file_type'][0]])
-                if not os.path.exists(filegraphpathae):
-                    os.makedirs(filegraphpathae)        
-                agf.angexp_temporal_evolution(inputfilev04.columns[4],inputfile['level'][0], inputfilev02['average_time'][0], df_aeronetdata,list(ast.literal_eval(inputfilev04['AE'][l])),filegraphpathae,graphnameae)
+        # for l in range(0,len(inputfilev04['processed_AE'].dropna())):
+        #     if inputfilev04['processed_AE'][l] == 'on':
+        #         print('The Angstrom Exponent graphic relation at '+ str(list(ast.literal_eval(inputfilev04['AE'][l]))[0]) + '-' + str(list(ast.literal_eval(inputfilev04['AE'][l]))[1]) + ' nm will be plotted' )
+        #         filegraphpathae = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[5],''.join([inputfilev04.columns[5],str(list(ast.literal_eval(inputfilev04['AE'][l]))[0]),'-',str(list(ast.literal_eval(inputfilev04['AE'][l]))[1]),'nm'])])
+        #         graphnameae = ''.join([rawfilenames[0][0].replace('.directsun','_AE'),''.join([str(list(ast.literal_eval(inputfilev04['AE'][l]))[0]),'-',str(list(ast.literal_eval(inputfilev04['AE'][l]))[1])]),'nm.',inputfilev04['graphic_file_type'][0]])
+        #         if not os.path.exists(filegraphpathae):
+        #             os.makedirs(filegraphpathae)        
+        #         agf.angexp_temporal_evolution(inputfilev04.columns[4],inputfile['level'][0], inputfilev02['average_time'][0], df_aeronetdata,list(ast.literal_eval(inputfilev04['AE'][l])),filegraphpathae,graphnameae)
 
-        for m in range(0,len(inputfilev04['AOD_vs_AE_graphics'].dropna())):
-            if inputfilev04['AOD_vs_AE_graphics'][m] == 'on':
-                print('The AOD x AE scatter plot graphic with AOD at '+ str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[0]) + ' and AE relation at ' + str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[1]) + '-' + str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[2]) + ' nm will be plotted' )
-                filegraphpathAODvsAE = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[9],''.join([str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[0]),'vs',str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[1]),str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[2]),'nm'])])
-                graphnameAODvsAE = ''.join([rawfilenames[0][0].replace('.directsun','_AODvsAE_'),str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[0]),'vs',str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[1]),str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[2]) ,'nm.',inputfilev04['graphic_file_type'][0]])
-                if not os.path.exists(filegraphpathAODvsAE):
-                    os.makedirs(filegraphpathAODvsAE)
-                agf.scatterplot_AODvsAE(inputfilev04.columns[9], inputfile['level'][0], df_aeronetdata, inputfilev04['AOD_vs_AE'][m], filegraphpathAODvsAE, graphnameAODvsAE)
+        # for m in range(0,len(inputfilev04['AOD_vs_AE_graphics'].dropna())):
+        #     if inputfilev04['AOD_vs_AE_graphics'][m] == 'on':
+        #         print('The AOD x AE scatter plot graphic with AOD at '+ str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[0]) + ' and AE relation at ' + str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[1]) + '-' + str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[2]) + ' nm will be plotted' )
+        #         filegraphpathAODvsAE = os.sep.join([rootdir, inputfilev04['v04outputdir'][0],inputfilev04.columns[9],''.join([str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[0]),'vs',str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[1]),str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[2]),'nm'])])
+        #         graphnameAODvsAE = ''.join([rawfilenames[0][0].replace('.directsun','_AODvsAE_'),str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[0]),'vs',str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[1]),str(list(ast.literal_eval(inputfilev04['AOD_vs_AE'][m]))[2]) ,'nm.',inputfilev04['graphic_file_type'][0]])
+        #         if not os.path.exists(filegraphpathAODvsAE):
+        #             os.makedirs(filegraphpathAODvsAE)
+        #         agf.scatterplot_AODvsAE(inputfilev04.columns[9], inputfile['level'][0], df_aeronetdata, inputfilev04['AOD_vs_AE'][m], filegraphpathAODvsAE, graphnameAODvsAE)
                 
         for n in range(0,len(inputfilev04['processed_boxplot_LR'])):
             if inputfilev04['processed_boxplot_LR'][n] == 'on':
