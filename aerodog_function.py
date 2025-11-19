@@ -4,6 +4,9 @@ Function to organize directsun and inversion AERONET data (level 1.0, 1.5 or 2.0
 Function created on Mon Nov 22 17:04:21 2021
 AERODOG first version created on Wed Dec 23 17:45:08 2020
 @author: Alexandre C. Yoshida, Fábio J. S. Lopes and Alexandre Cacheffo
+
+Last update: November 19, 2025 by hbarbosa
+  - turned comments into docstrings
 """
 import os
 import math
@@ -68,6 +71,9 @@ Function to concatenate direct-sun and inversion algorithm from AERONET data mea
         files = [name for name in os.listdir(inputdir) if name.endswith(''.join([str(rawlevel),'.',filetype]))]
         lenfiles = len(files)
 
+        # bug 13-nov-2025 loops over the file list, openning one by
+        # one, but "aeronetfile" is overwritten. Hence, only the last
+        # file is returned in aeronetfile_mean
         for j in range(0, lenfiles):
             aeronetfile = pd.read_csv(os.sep.join([inputdir, files[j]]))
             
@@ -76,6 +82,7 @@ Function to concatenate direct-sun and inversion algorithm from AERONET data mea
             aeronetfile_mean = aeronetfile_index.groupby('AERONET_Site').resample(avgtime).mean(numeric_only=True)
             aeronetfile_mean = aeronetfile_mean.dropna()
             
+        # bug: like this, only the last file data is returned    
         return aeronetfile_mean
 
 '''
