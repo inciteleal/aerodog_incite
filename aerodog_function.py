@@ -7,6 +7,7 @@ AERODOG first version created on Wed Dec 23 17:45:08 2020
 
 Last update: November 19, 2025 by hbarbosa
   - turned comments into docstrings
+  - Bug fix: mining_aeronet_data() now concatenates all the files listed. 
 """
 import os
 import math
@@ -54,6 +55,16 @@ Function for organization of AERONET Aerosol Optical Depth (V3) - level1.5 or le
     inputdir = os.sep.join([rootdir,rawdatadir])
     newfiles = os.sep.join([inputdir, rawfile])
     newfilepath = newfiles.replace(rawdatadir, outputdir).replace('_'+str(rawlevel)+'.'+filetype, '.'+str(rawlevel)+'_'+filetype+'_v01')
+    #print("organizing_aeronet_data:: rootdir= ", rootdir)
+    #print("organizing_aeronet_data:: rawfile= ", rawfile)
+    #print("organizing_aeronet_data:: filetype= ", filetype)
+    #print("organizing_aeronet_data:: use_cols= ", use_cols)
+    #print("organizing_aeronet_data:: rowstoskip= ", rowstoskip)
+    #print("organizing_aeronet_data:: rawlevel= ", rawlevel)
+    #print("organizing_aeronet_data:: rawdatadir= ", rawdatadir)
+    #print("organizing_aeronet_data:: outputdir= ", outputdir)
+    #print("organizing_aeronet_data:: newfiles= ", newfiles)
+    #print("organizing_aeronet_data:: newfilepath= ", newfilepath)
     f = pd.read_csv(newfiles,usecols=use_cols, skiprows=range(0, rowstoskip))
     f = f.replace(-999.,np.nan)
     f = f.replace(0,np.nan)
@@ -61,28 +72,38 @@ Function for organization of AERONET Aerosol Optical Depth (V3) - level1.5 or le
     f.insert(1,'globaltime',f.apply(globaltime_function, axis=1))
     f.to_csv(newfilepath,float_format="%.6f",index=False)  
 
-def mining_aeronet_data(rootdir,filetype,rawlevel,avgtime,rawdatadir,outputdir):
-        '''
+def mining_aeronet_data(inputdir, files, avgtime):
+'''
 =============================================
-Function to concatenate direct-sun and inversion algorithm from AERONET data measurements
+Function to concatenate direct-sun and inversion algorithm from AERONET data measurements. 
+
+Input: 
+inputdir , string           Path to folder where files are
+files    , list of strings  List of files to read from inputdir
+avgtime  , string           Resample time (e.g. 15min, 1hour)
+
+Output:
+A single pandas DF with the data from all files concatenated. 
 =============================================
 '''        
-        inputdir = os.sep.join([rootdir,rawdatadir])
-        files = [name for name in os.listdir(inputdir) if name.endswith(''.join([str(rawlevel),'.',filetype]))]
         lenfiles = len(files)
+        #print("mining_aeronet_data:: inputdir= ", inputdir)
+        #print("mining_aeronet_data:: files= ", files)
+        #print("mining_aeronet_data:: avgtime= ", avgtime)
 
-        # bug 13-nov-2025 loops over the file list, openning one by
-        # one, but "aeronetfile" is overwritten. Hence, only the last
-        # file is returned in aeronetfile_mean
-        for j in range(0, lenfiles):
-            aeronetfile = pd.read_csv(os.sep.join([inputdir, files[j]]))
+        aeronetfile = []
+        for afile in files:
+            aeronetfile.append( pd.read_csv(os.sep.join([inputdir, afile])) )
+
+        aeronetfile = pd.concat(aeronetfile, axis=0)
             
-            '''Applying func1 (date&Time as index) in AOD, SSA, PFN and TAB files - resample as XX minutes mean data '''
-            aeronetfile_index = globaltime_index(aeronetfile)
-            aeronetfile_mean = aeronetfile_index.groupby('AERONET_Site').resample(avgtime).mean(numeric_only=True)
-            aeronetfile_mean = aeronetfile_mean.dropna()
-            
-        # bug: like this, only the last file data is returned    
+        # add time index to dataset
+        aeronetfile_index = globaltime_index(aeronetfile)
+        # resample as XX minutes mean data
+        aeronetfile_mean = aeronetfile_index.groupby('AERONET_Site').resample(avgtime).mean(numeric_only=True)
+        # exclude times when all values are NaN
+        aeronetfile_mean = aeronetfile_mean.dropna()
+        
         return aeronetfile_mean
 
 '''
