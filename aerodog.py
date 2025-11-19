@@ -8,7 +8,9 @@ Last update: November 11, 2025 by hbarbosa
   - prints info to the user
   - removed index for loop on filenames
   - input files in a separate folder (like dad.py)
-  - output file in separate folders, per level (01-organized, 02-merged, 03-derived, 04-graphics)
+  - output files in separate folders, per level (01-organized, 02-merged, 03-derived, 04-graphics)
+  - fixed bug in Module 1 when processing multiple files for the same product
+  - fixed bug in mining_aeronet_data() where only the last file was returned
 """
 
 import os
@@ -58,7 +60,7 @@ for afile in inputfilenames:
     print('Reading input file:', newfile)
 
     inputfile = pd.read_csv(newfile, sep = ',')
-    print('Number of variables requested:', len(inputfile))
+    print('Number of products requested:', len(inputfile))
 
     # bug 6-nov-2025
     # Here, the code assumed only one input file for each product (e.g., aod).
@@ -72,20 +74,20 @@ for afile in inputfilenames:
 
         # only process the lines marked as 'on' in the input file
         if inputfile['process'][j] == 'on':
-            print("processing variable: " + inputfile['filetype'][j])
+            print("Processing product: " + inputfile['filetype'][j])
 
-            # Output from step 1 is saved in 01-organized/ folder
+            # Result from step 1 is saved to 01-organized/ folder
             outputdir = os.sep.join(['01-organized', inputfile['outputdir'][j]])
             if not os.path.exists(os.sep.join([rootdir, outputdir])):
                 os.makedirs(os.sep.join([rootdir, outputdir]))
             
-            # Rawdata (downloaded with dad.py) is found in 00-rawdata/ folder
+            # Rawdata (downloaded with dad.py) is read from 00-rawdata/ folder
             rawdatadir = os.sep.join(['00-rawdata', inputfile['rawdatadir'][j]])
             # bug 6-nov-2025
             # create a fresh list, instead of appending
             #rawfilenames.append(adf.reading_aeronet_data(rootdir,inputfile['filetype'][j],rawdatadir))
             rawfilenames = adf.reading_aeronet_data(rootdir,inputfile['filetype'][j],rawdatadir)
-            print("List of files with that variable:")
+            print("List of files with this product:")
             print(rawfilenames)
             
             # bug 6-nov-2025
@@ -94,7 +96,8 @@ for afile in inputfilenames:
             #                            inputfile['rows_to_skip'][j],inputfile['level'][j],rawdatadir,outputdir)
 
             # loop over all the files for this variable
-            for arawfile in rawfilenames: 
+            for arawfile in rawfilenames:
+                # future improvement: build the output file name and pass to the function
                 adf.organizing_aeronet_data(rootdir, arawfile,inputfile['filetype'][j],list(ast.literal_eval(inputfile['use_cols'][j])),
                                             inputfile['rows_to_skip'][j],inputfile['level'][j],rawdatadir,outputdir)
 
@@ -112,11 +115,11 @@ inputfilenamev02 = '02-inputfile_organized'
 inputdirv02 = os.sep.join([rootdir, inputdatadirv02])
 
 inputfilenamesv02 = [name for name in os.listdir(inputdirv02) if name.startswith(inputfilenamev02)]
-print('Number of input files to read:', len(inputfilenamesv02))
-print('List of input files found:')
+print('Number of 02-inputfiles to read:', len(inputfilenamesv02))
+print('List of 02-inputfiles found:')
 print(inputfilenamesv02)
 
-# loop over multiple input files
+# loop over multiple input files (should be one per site)
 for afile in inputfilenamesv02:
         
         # read the input file
@@ -126,12 +129,12 @@ for afile in inputfilenamesv02:
         print('Reading input file:', newfilev02)
 
         inputfilev02 = pd.read_csv(newfilev02, sep = ',')
-        print('Number of variables requested:', len(inputfilev02))
+        print('Number of products requested:', len(inputfilev02))
 
-        filenamesv02 = []
+        #filenamesv02 = []
         aeronetfilev02 = []
 
-        # process all the lines in the input file (typically one product per line, all from the same site)
+        # process all the lines in the input file 
         # then, merge all variables into a single file
         for j in range(0,len(inputfilev02)):
 
@@ -139,19 +142,22 @@ for afile in inputfilenamesv02:
             if inputfilev02['process'][j] == 'on':                
                 print("processing variable: " + inputfilev02['filetype'][j])
 
-                # Output from step 2 is saved in 02-merged/ folder
+                # Result from step 2 is saved to 02-merged/ folder
                 outputdirv02 = os.sep.join(['02-merged', inputfilev02['v02outputdir'][j]])
                 if not os.path.exists(os.sep.join([rootdir, outputdirv02])):
                     os.makedirs(os.sep.join([rootdir, outputdirv02]))
 
-                # Output from step 1 is found in 01-organized/ folder
-                outputdirv01 = os.sep.join(['01-organized', inputfilev02['v01datadir'][j]])
-                filenamesv02.append(adf.reading_aeronet_data(rootdir,inputfilev02['filetype'][j],outputdirv01))                    
-                print("List of files with that variable:")
-                print(filenamesv02[j])
+                # Previous result from step 1 is read from 01-organized/ folder
+                inputdirv01 = os.sep.join(['01-organized', inputfilev02['v01datadir'][j]])
+                filetypev01 = inputfilev02['filetype'][j]
+                filenamesv01 = adf.reading_aeronet_data(rootdir,filetypev01,inputdirv01)
+                print("List of files with that product:")
+                print(filenamesv01)
 
-                # why do we list the files above, if the next function will list them again??
-                aeronetfilev02.append(adf.mining_aeronet_data(rootdir,inputfilev02['filetype'][j],inputfilev02['level'][j],inputfilev02['average_time'][j],outputdirv01,outputdirv02))
+                # bug 12-nov-2025 mining_aeronet_data() only returned last file
+                #aeronetfilev02.append(adf.mining_aeronet_data(rootdir,inputfilev02['filetype'][j],inputfilev02['level'][j],inputfilev02['average_time'][j],outputdirv01,outputdirv02))
+                # calling new version of mining_aeronet_data()
+                aeronetfilev02.append(adf.mining_aeronet_data(os.sep.join(rootdir,inputdirv01), filenamesv01, inputfilev02['average_time'][j]))
 
                 print("number of PDs in concat = ",len(aeronetfilev02))
                 # this is wrong... how can we concat() before finish reading all files/variables?
@@ -179,13 +185,14 @@ for afile in inputfilenamesv02:
             if inputfilev02['filetype'][j] == 'directsun':
                 #bug - filename should not depend on the variables read.
                 # this is the 'merged' file, we should just use that instead
-                savefilename_v02 = os.sep.join([rootdir,outputdirv02,filenamesv02[j][0].replace('directsun','merged')])
+                savefilename_v02 = os.sep.join([rootdir,outputdirv02,filenamesv01[j][0].replace('directsun','merged')])
                 #savefilename_v02 = os.sep.join([rootdir,outputdirv02,''.join([filenamesv02[j][0],'_inversion_merged_v02'])])
 
             print('saving the merged DF...')
             # BUG: we are saving the merged DF after reading each line (even the ones not processed = off)
             # the merge should be saved only once
             main_aeronet_df.to_csv(savefilename_v02,float_format="%.6f",index=False)
+
 
 
 print('''
