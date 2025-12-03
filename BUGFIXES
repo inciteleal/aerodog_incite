@@ -1,4 +1,98 @@
-LIST OF BUGS DETECTED AND FIXED
+BUGFIXESLIST OF BUGS DETECTED AND FIXED
+
+2025-NOV-12
+
+In Module 2, the code creates a list of files, but doesn't pass it to
+the function mining_aeronet_data(), which then repeats the
+work. Moreover, the function only loads the last file in the list.
+
+Here's the problematic code in the main script:
+
+# Output from step 1 is found in 01-organized/ folder
+outputdirv01 = os.sep.join(['01-organized', inputfilev02['v01datadir'][j]])
+filenamesv02.append(adf.reading_aeronet_data(rootdir,inputfilev02['filetype'][j],outputdirv01))                    
+
+# Bug: we should pass filenamesv02 to mining_aeronet_data()
+aeronetfilev02.append(adf.mining_aeronet_data(rootdir,inputfilev02['filetype'][j],inputfilev02['level'][j],
+                                              inputfilev02['average_time'][j],outputdirv01,outputdirv02))
+
+And here's the old code from the function:
+
+def mining_aeronet_data(rootdir,filetype,rawlevel,avgtime,rawdatadir,outputdir):
+        inputdir = os.sep.join([rootdir,rawdatadir])
+        files = [name for name in os.listdir(inputdir) if name.endswith(''.join([str(rawlevel),'.',filetype]))]
+        lenfiles = len(files)
+
+        # bug 13-nov-2025 loops over the file list, openning one by
+        #  one, but "aeronetfile" is overwritten. Hence, only the last
+        # file is return in aeronetfile_mean
+        for j in range(0, lenfiles):
+            # bug: the PDs should be appended into a list
+            aeronetfile = pd.read_csv(os.sep.join([inputdir, files[j]]))
+            
+            '''Applying func1 (date&Time as index) in AOD, SSA, PFN and TAB files - resample as XX minutes mean data '''
+            aeronetfile_index = globaltime_index(aeronetfile)
+            aeronetfile_mean = aeronetfile_index.groupby('AERONET_Site').resample(avgtime).mean(numeric_only=True)
+            aeronetfile_mean = aeronetfile_mean.dropna()
+
+        # bug: like this, only the last file data is returned
+        return aeronetfile_mean
+
+
+2025-NOV-11
+
+Module 2 creates a list of DFs that keep growing with each line read
+from the input file. It also concat() all the DFs in that list with
+every new line read, instead of waiting until the end. Finally,
+the output filename is only created if 'directsun' is one of the
+products. Since the merged CSV is also saved after reading each new line,
+the filename used for saving will be undefined if 'directsun' is not
+the first product in the list. Here's the old problematic code:
+
+
+for afile in inputfilenamesv02:
+
+        newfilev02 = os.sep.join([inputdirv02, afile])
+        inputfilev02 = pd.read_csv(newfilev02, sep = ',')
+
+        filenamesv02 = []
+        aeronetfilev02 = []
+
+        for j in range(0,len(inputfilev02)):
+
+            if inputfilev02['process'][j] == 'on':                
+                print("processing variable: " + inputfilev02['filetype'][j])
+
+                outputdirv02 = os.sep.join(['02-merged', inputfilev02['v02outputdir'][j]])
+                if not os.path.exists(os.sep.join([rootdir, outputdirv02])):
+                    os.makedirs(os.sep.join([rootdir, outputdirv02]))
+
+                # Output from step 1 is found in 01-organized/ folder
+                outputdirv01 = os.sep.join(['01-organized', inputfilev02['v01datadir'][j]])
+                filenamesv02.append(adf.reading_aeronet_data(rootdir,inputfilev02['filetype'][j],outputdirv01))                    
+
+                # potential bug:
+                # why do we list the files above, if the next function will list them again?
+                # Moreover, mining_aeronet_data() find all files, but only return the average of the last file
+                aeronetfilev02.append(adf.mining_aeronet_data(rootdir,inputfilev02['filetype'][j],inputfilev02['level'][j],inputfilev02['average_time'][j],outputdirv01,outputdirv02))
+
+                # Bug: we should not concat() before finish reading all files/variables
+                main_aeronet_df = pd.concat(aeronetfilev02,axis=1,join='inner')
+
+                # Bug: also uncessary to be done here. Could wait until the end.
+                main_aeronet_df = main_aeronet_df.rename(columns = {'440-870_Angstrom_Exponent': 'AE_440_870nm', ...}
+
+                main_aeronet_df = main_aeronet_df.reset_index()
+
+            # Bug: If 'directsun' is not one of the variables, savefilename_v02 is never defined
+            #      If present, but  not the first one,  then filename will be used before being defined
+            if inputfilev02['filetype'][j] == 'directsun':
+                savefilename_v02 = os.sep.join([rootdir,outputdirv02,''.join([filenamesv02[j][0],'_inversion_merged_v02'])])
+
+            # Bug: We should not save the merged DF after reading each line 
+            main_aeronet_df.to_csv(savefilename_v02,float_format="%.6f",index=False)
+
+ 
 
 2025-NOV-6
 

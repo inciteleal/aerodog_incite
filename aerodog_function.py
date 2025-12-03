@@ -73,7 +73,7 @@ Function for organization of AERONET Aerosol Optical Depth (V3) - level1.5 or le
     f.to_csv(newfilepath,float_format="%.6f",index=False)  
 
 def mining_aeronet_data(inputdir, files, avgtime):
-'''
+    '''
 =============================================
 Function to concatenate direct-sun and inversion algorithm from AERONET data measurements. 
 
@@ -86,25 +86,25 @@ Output:
 A single pandas DF with the data from all files concatenated. 
 =============================================
 '''        
-        lenfiles = len(files)
-        #print("mining_aeronet_data:: inputdir= ", inputdir)
-        #print("mining_aeronet_data:: files= ", files)
-        #print("mining_aeronet_data:: avgtime= ", avgtime)
+    lenfiles = len(files)
+    #print("mining_aeronet_data:: inputdir= ", inputdir)
+    #print("mining_aeronet_data:: files= ", files)
+    #print("mining_aeronet_data:: avgtime= ", avgtime)
 
-        aeronetfile = []
-        for afile in files:
-            aeronetfile.append( pd.read_csv(os.sep.join([inputdir, afile])) )
+    aeronetfile = []
+    for afile in files:
+        aeronetfile.append( pd.read_csv(os.sep.join([inputdir, afile])) )
 
-        aeronetfile = pd.concat(aeronetfile, axis=0)
-            
-        # add time index to dataset
-        aeronetfile_index = globaltime_index(aeronetfile)
-        # resample as XX minutes mean data
-        aeronetfile_mean = aeronetfile_index.groupby('AERONET_Site').resample(avgtime).mean(numeric_only=True)
-        # exclude times when all values are NaN
-        aeronetfile_mean = aeronetfile_mean.dropna()
+    aeronetfile = pd.concat(aeronetfile, axis=0)
         
-        return aeronetfile_mean
+    # add time index to dataset
+    aeronetfile_index = globaltime_index(aeronetfile)
+    # resample as XX minutes mean data
+    aeronetfile_mean = aeronetfile_index.groupby('AERONET_Site').resample(avgtime).mean(numeric_only=True)
+    # exclude times when all values are NaN
+    aeronetfile_mean = aeronetfile_mean.dropna()
+    
+    return aeronetfile_mean
 
 '''
 =============================================
