@@ -5,9 +5,11 @@ Function created on Mon Nov 22 17:04:21 2021
 AERODOG first version created on Wed Dec 23 17:45:08 2020
 @author: Alexandre C. Yoshida, Fábio J. S. Lopes and Alexandre Cacheffo
 
-Last update: November 19, 2025 by hbarbosa
+Last update: December 5, 2025 by hbarbosa
   - turned comments into docstrings
   - Bug fix: mining_aeronet_data() now concatenates all the files listed. 
+  - Bug fix: mining_aeronet_data() now sorts the data after concatenation to ensure proper time index for resampling
+  - Bug fix: removed groupby(aeronet_site) to avoid adding AERONET_Site to the index
 """
 import os
 import math
@@ -44,6 +46,9 @@ Function to read files from AERONET - direct-sun and inversion algorithm - level
     inputdir = os.sep.join([rootdir,rawdatadir])
     files = [name for name in os.listdir(inputdir) if name.endswith(filetype)]
     
+    # bug fix: in case there are multiple files, they need to be sorted (helps with chronological order)
+    files.sort()
+
     return files
 
 def organizing_aeronet_data(rootdir,rawfile,filetype,use_cols,rowstoskip,rawlevel,rawdatadir,outputdir):
@@ -94,15 +99,26 @@ A single pandas DF with the data from all files concatenated.
     aeronetfile = []
     for afile in files:
         aeronetfile.append( pd.read_csv(os.sep.join([inputdir, afile])) )
+        #print('Number of data lines: ', len(aeronetfile[-1]))
 
-    aeronetfile = pd.concat(aeronetfile, axis=0)
+    # we must sort, as we don't know if the files names are in chronological order
+    aeronetfile = pd.concat(aeronetfile, axis=0, sort=True)
+    #print('Total number of data lines: ', len(aeronetfile))
         
     # add time index to dataset
     aeronetfile_index = globaltime_index(aeronetfile)
-    # resample as XX minutes mean data
-    aeronetfile_mean = aeronetfile_index.groupby('AERONET_Site').resample(avgtime).mean(numeric_only=True)
+
+    # resample the concatenated dataset
+    # note: directsun and inversion products are not available at the same time.
+    #       while resample aggreates data in larger time bins, most often the different
+    #       products will fall in different bins (nans and data in different bins). 
+
+    # bug fix: avoid groupby, as it introduces AERONET_site as part of the index
+    #aeronetfile_mean = aeronetfile_index.groupby('AERONET_Site').resample(avgtime).mean(numeric_only=True)
+    aeronetfile_mean = aeronetfile_index.resample(avgtime).mean(numeric_only=True)
     # exclude times when all values are NaN
     aeronetfile_mean = aeronetfile_mean.dropna()
+    #print('Total number of data lines after resampling and drop nan: ', len(aeronetfile_mean))
     
     return aeronetfile_mean
 

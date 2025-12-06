@@ -1,5 +1,12 @@
 BUGFIXESLIST OF BUGS DETECTED AND FIXED
 
+2025-DEC-5
+
+In Module 2, the code does not sort the dataframes after concatenating files of the same type.
+That could lead to problems when resampling, as the time index must be monotonic. 
+It also does not sort after merging the different files. In case you merge directsun and inversion files,
+which always have different times, the merged file will become out of temporal order.  
+
 2025-NOV-12
 
 In Module 2, the code creates a list of files, but doesn't pass it to

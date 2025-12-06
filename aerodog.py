@@ -11,7 +11,10 @@ Last update: December 3, 2025 by hbarbosa
   - output files in separate folders, per level (01-organized, 02-merged, 03-derived, 04-graphics)
   - fixed bug in Module 1 when processing multiple files for the same product
   - fixed bug in mining_aeronet_data() where only the last file was returned
-  - fixed bug in Module 2 that merged and saved data in every step
+  - fixed multiple bugs in Module 2
+      * merged and saved data in every step
+      * didn't sort data after concatenation
+      * join='inner' causing loss of data when merging different products
 """
 
 import os
@@ -114,6 +117,7 @@ for afile in inputfilenames:
                 # future improvement: build the output file name and pass to the function
                 adf.organizing_aeronet_data(rootdir, arawfile,inputfile['filetype'][j],list(ast.literal_eval(inputfile['use_cols'][j])),
                                             inputfile['rows_to_skip'][j],inputfile['level'][j],rawdatadir,outputdir)
+#sys.exit()
 
 print('''
 =============================================================================
@@ -183,13 +187,28 @@ for afile in inputfilenamesv02:
                 # calling new version of mining_aeronet_data()
                 aeronetfilev02.append(adf.mining_aeronet_data(os.sep.join([rootdir,inputdirv01]), filenamesv01, inputfilev02['average_time'][j]))
 
-                print("number of PDs in concat so far= ",len(aeronetfilev02))
+                #print("Number of PDs in concat so far= ",len(aeronetfilev02))
+                #print('')
+
         # this is wrong... how can we concat() before finish reading all files/variables?
-        main_aeronet_df = pd.concat(aeronetfilev02,axis=1,join='inner')
+        print('size of list of pds to concat = ', len(aeronetfilev02))
+        print('first and last globaltime_index of each pd in the list: ')
+        for idx, aedf in enumerate(aeronetfilev02):
+            print(' - pd[',idx,'] : ', aedf.index.min(), ' to ', aedf.index.max())
+        print('')
+
+        # BUG, this concat exclude lines from different products if they don't have matching timestamps
+        # for example, the "directsun" AOD have 100x more observations and inversion products
+        # they were all discarded because of the join="inner"
+        # Ideally, the user should avoid trying to merge direct sun with inversions
+        # but we cannot assume that...
+        #main_aeronet_df = pd.concat(aeronetfilev02,axis=1,join='inner')
+        main_aeronet_df = pd.concat(aeronetfilev02,axis=1,join='outer', sort=True)
         # this is also wrong... how can we manually change the column names? what if the user don't download the same columns?
         # or if the products in the input file come in a different order ?!?!?
         print(main_aeronet_df)
-        print("number of columns after concat = ", len(main_aeronet_df.columns))
+        print("Number of lines in merged dataset = ", len(main_aeronet_df))
+        print("Number of columns in merged dataset = ", len(main_aeronet_df.columns))
         # uhm... what happens if we rename columns that don't exist? maybe it doesn't give an error?
         # anyway, it would be better to concat/rename only once, after reading all files/products/variables
         main_aeronet_df = main_aeronet_df.rename(columns = {'440-870_Angstrom_Exponent': 'AE_440_870nm', 
